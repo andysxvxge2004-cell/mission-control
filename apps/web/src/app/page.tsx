@@ -8,6 +8,7 @@ import { TaskFilters } from "@/components/tasks/task-filters";
 import { TaskAgingAlerts } from "@/components/tasks/task-aging-alerts";
 import { AuditLogList } from "@/components/audit/audit-log";
 import { AgentPerformanceRollup } from "@/components/agents/agent-performance-rollup";
+import { AgentsSearch } from "@/components/agents/agents-search";
 import { AgentsNeedingMemory } from "@/components/agents/agents-needing-memory";
 import { ensureCoreAgents } from "@/lib/core-agents";
 import { TASK_PRIORITIES, TASK_STATUSES, type TaskPriority, type TaskStatus } from "@/lib/constants";
@@ -20,6 +21,7 @@ interface HomePageProps {
     agent?: string;
     status?: string;
     priority?: string;
+    search?: string;
   };
 }
 
@@ -39,6 +41,7 @@ export default async function Home({ searchParams }: HomePageProps) {
   const agentFilter = typeof searchParams?.agent === "string" && searchParams.agent.length > 0 ? searchParams.agent : undefined;
   const statusFilter = parseStatus(typeof searchParams?.status === "string" ? searchParams.status : undefined);
   const priorityFilter = parsePriority(typeof searchParams?.priority === "string" ? searchParams.priority : undefined);
+  const searchQuery = typeof searchParams?.search === "string" ? searchParams.search : "";
 
   const taskWhere: Prisma.TaskWhereInput = {};
   if (agentFilter) {
@@ -101,6 +104,10 @@ export default async function Home({ searchParams }: HomePageProps) {
   };
 
   const agentsForSelect = agents.map(({ id, name }) => ({ id, name }));
+  const searchLower = searchQuery.toLowerCase();
+  const filteredAgents = searchLower
+    ? agents.filter((agent) => agent.name.toLowerCase().includes(searchLower) || agent.role.toLowerCase().includes(searchLower))
+    : agents;
   const agentsMissingMemories = agents.filter((agent) => agent.memories.length === 0);
   const hasActiveFilters = Boolean(agentFilter || statusFilter || priorityFilter);
   const stuckCount = agingTasks.length;
@@ -165,13 +172,20 @@ export default async function Home({ searchParams }: HomePageProps) {
 
         <AgentsNeedingMemory agents={agents} referenceTime={now} />
 
+        <AgentsSearch
+          basePath="/"
+          quickLinkPrefix="/mission-control/agents"
+          query={searchQuery}
+          matches={filteredAgents.map(({ id, name, role }) => ({ id, name, role }))}
+        />
+
         <section className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-white">Agent roster</h2>
               <span className="text-xs uppercase tracking-wide text-white/50">Live</span>
             </div>
-            <AgentsList agents={agents} hrefPrefix="/mission-control/agents" />
+            <AgentsList agents={filteredAgents} hrefPrefix="/mission-control/agents" />
           </div>
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-white">Create new agent</h2>

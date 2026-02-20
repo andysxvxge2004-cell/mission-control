@@ -8,6 +8,7 @@ import { TaskAgingAlerts } from "@/components/tasks/task-aging-alerts";
 import { AuditLogList } from "@/components/audit/audit-log";
 import { AgentPerformanceRollup } from "@/components/agents/agent-performance-rollup";
 import { AgentsNeedingMemory } from "@/components/agents/agents-needing-memory";
+import { AgentsSearch } from "@/components/agents/agents-search";
 import { ensureCoreAgents } from "@/lib/core-agents";
 import { TASK_PRIORITIES, TASK_STATUSES, type TaskPriority, type TaskStatus } from "@/lib/constants";
 import { getStaleCutoffDate } from "@/lib/task-metrics";
@@ -38,6 +39,8 @@ export default async function MissionControlPage({ searchParams }: MissionContro
   const agentFilter = typeof searchParams?.agent === "string" && searchParams.agent.length > 0 ? searchParams.agent : undefined;
   const statusFilter = parseStatus(typeof searchParams?.status === "string" ? searchParams.status : undefined);
   const priorityFilter = parsePriority(typeof searchParams?.priority === "string" ? searchParams.priority : undefined);
+  const searchQuery = typeof searchParams?.search === "string" ? searchParams.search : "";
+  const priorityFilter = parsePriority(typeof searchParams?.priority === "string" ? searchParams.priority : undefined);
 
   const taskWhere: Prisma.TaskWhereInput = {};
   if (agentFilter) {
@@ -45,6 +48,9 @@ export default async function MissionControlPage({ searchParams }: MissionContro
   }
   if (statusFilter) {
     taskWhere.status = statusFilter;
+  }
+  if (priorityFilter) {
+    taskWhere.priority = priorityFilter;
   }
   if (priorityFilter) {
     taskWhere.priority = priorityFilter;
@@ -91,6 +97,9 @@ export default async function MissionControlPage({ searchParams }: MissionContro
   ]);
 
   const agentsForSelect = agents.map(({ id, name }) => ({ id, name }));
+  const filteredAgents = searchQuery
+    ? agents.filter((agent) => agent.name.toLowerCase().includes(searchQuery.toLowerCase()) || agent.role.toLowerCase().includes(searchQuery.toLowerCase()))
+    : agents;
   const hasActiveFilters = Boolean(agentFilter || statusFilter || priorityFilter);
   const stuckCount = agingTasks.length;
 
@@ -98,13 +107,21 @@ export default async function MissionControlPage({ searchParams }: MissionContro
     <div className="flex flex-col gap-10">
       <AgentsNeedingMemory agents={agents} referenceTime={now} />
 
+      <AgentsSearch
+        basePath="/mission-control"
+        quickLinkPrefix="/mission-control/agents"
+        query={searchQuery}
+        matches={filteredAgents.map(({ id, name, role }) => ({ id, name, role }))}
+        hiddenParams={{ agent: agentFilter ?? undefined, status: statusFilter ?? undefined, priority: priorityFilter ?? undefined }}
+      />
+
       <section className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-white">Agent roster</h2>
               <span className="text-xs uppercase tracking-wide text-white/50">Live</span>
             </div>
-            <AgentsList agents={agents} hrefPrefix="/mission-control/agents" />
+            <AgentsList agents={filteredAgents} hrefPrefix="/mission-control/agents" />
           </div>
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-white">Create new agent</h2>

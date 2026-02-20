@@ -1,13 +1,12 @@
 # Changelog
 
-## [0.1.18] - 2026-02-20
-- Added ownership-count chips (top 4 agents + unassigned) to Task Aging Alerts for one-click drilldowns
-
 ## [0.1.17] - 2026-02-20
-- Added quick-filter chips (All/Unassigned/top agents) to the aging alerts panel for one-tap drilldowns
+- Add agent search with instant quick-jump links so operators can open dossiers directly from Mission Control and the home dashboard
+- Filter the roster in-place based on the search string while preserving any active execution-queue filters
 
 ## [0.1.16] - 2026-02-20
-- Persist aging-alert filters (agent + sort) in the URL so sharable links stay scoped to the same stuck-task view
+- Introduce task priorities (Low/Medium/High) in the data model, creation form, update controls, and queue badges
+- Extend task filters to include priority so leads can focus on top-urgency work
 
 ## [0.1.15] - 2026-02-19
 - Added agent + sort controls to the aging alerts panel so ops can filter by owner or focus on oldest stuck work
@@ -34,10 +33,6 @@
 ## [0.1.8] - 2026-02-19
 - Highlight unbriefed agents with dashboard KPIs, warning banners, and roster badges so ops fills memory gaps before dispatching work
 - Add inline "Needs briefing" pills on agent cards plus aggregated counts in Mission Control and the home dashboard
-
-## [0.1.8] - 2026-02-19
-- Add workspace memory alerts that list every agent lacking documented memories, with quick links to append updates
-- Display the reminders across both dashboards so leads get nudged before staffing an unbriefed operator
 
 ## [0.1.7] - 2026-02-19
 - Add per-agent activity timelines by correlating audit log events with their assigned work
