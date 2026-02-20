@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.14] - 2026-02-19
+- Added rotating agent badge legend and color-coded ownership tags to the aging alerts panel for quicker visual parsing
+
 ## [0.1.13] - 2026-02-19
 - Task aging alerts now include relative "last update" timestamps for easier triage
 
