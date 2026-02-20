@@ -9,6 +9,10 @@
 ## [0.1.19] - 2026-02-20
 - Quick filter chips in Task Aging Alerts can now be pinned/unpinned, persisting via URL parameters for consistent drilldowns
 
+## [0.1.18] - 2026-02-20
+- Rebuild the agent roster into Kanban-style lanes (Idle, Engaged, Overloaded) with capacity hints based on active load
+- Highlight overloaded operators with rose-accented lane borders so leads can rebalance work before assigning new tasks
+
 ## [0.1.17] - 2026-02-20
 - Add agent search with instant quick-jump links so operators can open dossiers directly from Mission Control and the home dashboard
 - Filter the roster in-place based on the search string while preserving any active execution-queue filters
