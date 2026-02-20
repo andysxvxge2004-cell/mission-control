@@ -63,3 +63,5 @@
 - 2026-02-20 04:56 MST | [IMPORTANT] | v0.1.30 | Added secure deletion for escalation playbooks via server action + inline buttons so stale runbooks can be cleared without touching the DB. Files: escalation library component, server actions, CHANGELOG.md. Verify: visit Intelligence, delete a playbook, confirm it disappears after refresh.
 
 - 2026-02-20 05:06 MST | [IMPORTANT] | v0.1.31 | Added inline editing for escalation playbooks: cards now open an editor tied to a new Prisma update action so titles, owners, impact, steps, and comms can be tweaked without leaving Mission Control. Files: actions, library component, new editor, CHANGELOG.md. Verify: open Intelligence, hit Edit on a playbook, save, and confirm the card reflects the change immediately.
+
+- 2026-02-20 05:17 MST | [IMPORTANT] | v0.1.32 | Escalation playbooks can now be duplicated in one click; new server action clones metadata, steps, and comms, and the library exposes a Duplicate button next to Edit/Delete. Files: actions, library component, new duplicate form, CHANGELOG.md. Verify: open Intelligence, hit Duplicate on any playbook, ensure a '(copy)' version appears.

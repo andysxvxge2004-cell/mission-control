@@ -2,7 +2,7 @@
 
 import { useMemo, useState } from "react";
 import { useFormStatus } from "react-dom";
-import { deleteEscalationPlaybook } from "@/app/actions";
+import { deleteEscalationPlaybook, duplicateEscalationPlaybook } from "@/app/actions";
 import { EscalationPlaybookEditor } from "./escalation-playbook-editor";
 import { ESCALATION_IMPACT_LEVELS, type EscalationImpactLevel } from "@/lib/escalation-playbooks";
 
@@ -19,6 +19,29 @@ export type EscalationPlaybookView = {
 interface DeletePlaybookFormProps {
   playbookId: string;
   title: string;
+}
+
+interface DuplicatePlaybookFormProps {
+  playbookId: string;
+  title: string;
+}
+
+function DuplicatePlaybookForm({ playbookId, title }: DuplicatePlaybookFormProps) {
+  const { pending } = useFormStatus();
+
+  return (
+    <form action={duplicateEscalationPlaybook}>
+      <input type="hidden" name="playbookId" value={playbookId} />
+      <button
+        type="submit"
+        className="rounded-full border border-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/70 transition hover:border-emerald-300 hover:text-emerald-100 disabled:opacity-60"
+        disabled={pending}
+        title={`Clone ${title}`}
+      >
+        {pending ? "Cloning…" : "Duplicate"}
+      </button>
+    </form>
+  );
 }
 
 function DeletePlaybookForm({ playbookId, title }: DeletePlaybookFormProps) {
@@ -162,6 +185,7 @@ export function EscalationPlaybookLibrary({ playbooks }: { playbooks: Escalation
                 >
                   {editingId === playbook.id ? "Close editor" : "Edit"}
                 </button>
+                <DuplicatePlaybookForm playbookId={playbook.id} title={playbook.title} />
                 <DeletePlaybookForm playbookId={playbook.id} title={playbook.title} />
               </div>
             </header>

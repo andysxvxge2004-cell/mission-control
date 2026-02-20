@@ -51,6 +51,10 @@ const playbookIdSchema = z.object({
   playbookId: z.string().min(1)
 });
 
+const playbookLinkSchema = z.object({
+  playbookId: z.string().min(1)
+});
+
 async function writeAuditLog(action: string, metadata: Record<string, unknown>) {
   await prisma.auditLog.create({
     data: {
@@ -277,3 +281,38 @@ export async function updateEscalationPlaybook(_: unknown, formData: FormData) {
   return { success: true };
 }
 
+
+export async function duplicateEscalationPlaybook(_: unknown, formData: FormData) {
+  const result = playbookLinkSchema.safeParse({ playbookId: formData.get("playbookId") });
+  if (!result.success) {
+    return { error: result.error.errors[0]?.message ?? "Invalid input" };
+  }
+
+  const { playbookId } = result.data;
+  const playbook = await prisma.escalationPlaybook.findUnique({
+    where: { id: playbookId },
+    include: { steps: { orderBy: { position: "asc" } } }
+  });
+
+  if (!playbook) {
+    return { error: "Playbook not found" };
+  }
+
+  const duplicate = await prisma.escalationPlaybook.create({
+    data: {
+      title: `${playbook.title} (copy)`,
+      scenario: playbook.scenario,
+      impactLevel: playbook.impactLevel as (typeof ESCALATION_IMPACT_LEVELS)[number],
+      owner: playbook.owner,
+      communicationTemplate: playbook.communicationTemplate,
+      steps: {
+        create: playbook.steps.map((step, index) => ({ position: index + 1, instruction: step.instruction }))
+      }
+    }
+  });
+
+  await writeAuditLog("playbook.duplicated", { sourceId: playbookId, duplicateId: duplicate.id });
+  revalidatePath("/mission-control/intelligence");
+
+  return { success: true };
+}
