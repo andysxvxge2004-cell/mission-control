@@ -1,6 +1,6 @@
 'use client';
 
-import { useState } from "react";
+import { useMemo, useState } from "react";
 
 export type EscalationPlaybookView = {
   id: string;
@@ -12,6 +12,8 @@ export type EscalationPlaybookView = {
   communicationTemplate?: string | null;
 };
 
+const IMPACT_LEVELS = ["Critical", "High", "Medium", "Low"] as const;
+
 const IMPACT_BADGES: Record<string, string> = {
   Critical: "bg-rose-500/20 text-rose-100 border border-rose-300/30",
   High: "bg-amber-500/20 text-amber-100 border border-amber-300/30",
@@ -21,6 +23,8 @@ const IMPACT_BADGES: Record<string, string> = {
 
 export function EscalationPlaybookLibrary({ playbooks }: { playbooks: EscalationPlaybookView[] }) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [impactFilter, setImpactFilter] = useState<string>("ALL");
+  const [searchQuery, setSearchQuery] = useState("");
 
   const handleCopy = async (id: string, template?: string | null) => {
     if (!template) return;
@@ -33,6 +37,24 @@ export function EscalationPlaybookLibrary({ playbooks }: { playbooks: Escalation
     }
   };
 
+  const impactCounts = useMemo(() => {
+    return playbooks.reduce<Record<string, number>>((acc, playbook) => {
+      acc[playbook.impactLevel] = (acc[playbook.impactLevel] ?? 0) + 1;
+      return acc;
+    }, {});
+  }, [playbooks]);
+
+  const filteredPlaybooks = useMemo(() => {
+    const normalizedQuery = searchQuery.trim().toLowerCase();
+    return playbooks.filter((playbook) => {
+      const matchesImpact = impactFilter === "ALL" || playbook.impactLevel === impactFilter;
+      if (!matchesImpact) return false;
+      if (!normalizedQuery) return true;
+      const haystack = `${playbook.title} ${playbook.scenario} ${playbook.owner}`.toLowerCase();
+      return haystack.includes(normalizedQuery);
+    });
+  }, [impactFilter, playbooks, searchQuery]);
+
   return (
     <div className="space-y-4">
       <div className="flex flex-wrap items-end justify-between gap-3">
@@ -41,11 +63,51 @@ export function EscalationPlaybookLibrary({ playbooks }: { playbooks: Escalation
           <h2 className="text-2xl font-semibold text-white">Playbooks</h2>
           <p className="text-sm text-white/70">Documented response steps with ready-to-send comms templates.</p>
         </div>
-        <span className="text-xs uppercase tracking-wide text-white/50">{playbooks.length} playbook{playbooks.length === 1 ? "" : "s"}</span>
+        <span className="text-xs uppercase tracking-wide text-white/50">
+          Showing {filteredPlaybooks.length} of {playbooks.length}
+        </span>
       </div>
 
+      <div className="flex flex-wrap gap-3 rounded-3xl border border-white/10 bg-black/30 p-4">
+        <div className="flex flex-wrap gap-2">
+          {["ALL", ...IMPACT_LEVELS].map((level) => {
+            const isActive = impactFilter === level;
+            const label = level === "ALL" ? "All" : level;
+            const count = level === "ALL" ? playbooks.length : impactCounts[level] ?? 0;
+            return (
+              <button
+                key={level}
+                type="button"
+                className={`flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide transition ${
+                  isActive ? "border-indigo-300 bg-indigo-400/20 text-white" : "border-white/15 text-white/70 hover:text-white"
+                }`}
+                onClick={() => setImpactFilter(level)}
+              >
+                <span>{label}</span>
+                <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-white">{count}</span>
+              </button>
+            );
+          })}
+        </div>
+        <label className="flex-1 min-w-[220px]">
+          <span className="sr-only">Search playbooks</span>
+          <input
+            value={searchQuery}
+            onChange={(event) => setSearchQuery(event.target.value)}
+            placeholder="Search title, scenario, owner…"
+            className="w-full rounded-full border border-white/15 bg-black/40 px-4 py-2 text-sm text-white placeholder:text-white/40 focus:border-indigo-300 focus:outline-none"
+          />
+        </label>
+      </div>
+
+      {filteredPlaybooks.length === 0 ? (
+        <div className="rounded-3xl border border-amber-300/30 bg-amber-300/10 p-4 text-sm text-amber-100">
+          No playbooks match those filters. Try another impact level or clear the search.
+        </div>
+      ) : null}
+
       <div className="grid gap-4 lg:grid-cols-2">
-        {playbooks.map((playbook) => (
+        {filteredPlaybooks.map((playbook) => (
           <article key={playbook.id} className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-inner shadow-black/20">
             <header className="flex flex-wrap items-center justify-between gap-2">
               <div>

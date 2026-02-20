@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.29] - 2026-02-20
+- Escalation playbook library now includes impact filter chips and fuzzy search so ops can immediately surface the right runbook and comms template
+
 ## [0.1.28] - 2026-02-20
 - Added an escalation playbooks library with templated comms snippets inside Mission Control → Intelligence
 - Persisted playbooks in the database so default critical/high/medium responses stay versioned and editable
