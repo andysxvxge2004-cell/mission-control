@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.16] - 2026-02-20
+- Persist aging-alert filters (agent + sort) in the URL so sharable links stay scoped to the same stuck-task view
+
 ## [0.1.15] - 2026-02-19
 - Added agent + sort controls to the aging alerts panel so ops can filter by owner or focus on oldest stuck work
 

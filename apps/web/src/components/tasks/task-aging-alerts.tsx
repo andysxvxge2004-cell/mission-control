@@ -1,6 +1,7 @@
 'use client';
 
-import { useMemo, useState } from "react";
+import { useMemo } from "react";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Agent, Task } from "@mission-control/db";
 import { formatDateTime, formatRelativeTime } from "@/lib/formatters";
 
@@ -26,8 +27,30 @@ function getAgentBadgeClass(agentId: string, index: number) {
 type SortOrder = "oldest" | "newest";
 
 export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) {
-  const [agentFilter, setAgentFilter] = useState<string>("all");
-  const [sortOrder, setSortOrder] = useState<SortOrder>("oldest");
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const pathname = usePathname();
+
+  const agentFilter = searchParams.get('agingAgent') ?? 'all';
+  const sortOrder: SortOrder = searchParams.get('agingSort') === 'newest' ? 'newest' : 'oldest';
+
+  const updateQuery = (nextAgent: string, nextSort: SortOrder) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (nextAgent === 'all') {
+      params.delete('agingAgent');
+    } else {
+      params.set('agingAgent', nextAgent);
+    }
+
+    if (nextSort === 'oldest') {
+      params.delete('agingSort');
+    } else {
+      params.set('agingSort', nextSort);
+    }
+
+    const query = params.toString();
+    router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
 
   const agentOptions = useMemo(() => {
     const map = new Map<string, string>();
@@ -102,7 +125,10 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
           <select
             className="rounded-md border border-white/20 bg-black/30 px-3 py-1 text-sm text-white focus:border-amber-300 focus:outline-none"
             value={agentFilter}
-            onChange={(event) => setAgentFilter(event.target.value)}
+            onChange={(event) => {
+              const value = event.target.value;
+              updateQuery(value, sortOrder);
+            }}
           >
             <option value="all">All agents</option>
             <option value="unassigned">Unassigned</option>
@@ -118,7 +144,10 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
           <select
             className="rounded-md border border-white/20 bg-black/30 px-3 py-1 text-sm text-white focus:border-amber-300 focus:outline-none"
             value={sortOrder}
-            onChange={(event) => setSortOrder(event.target.value as SortOrder)}
+            onChange={(event) => {
+              const value = event.target.value as SortOrder;
+              updateQuery(agentFilter, value);
+            }}
           >
             <option value="oldest">Oldest first</option>
             <option value="newest">Newest first</option>
@@ -129,8 +158,7 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
             type="button"
             className="rounded-md border border-amber-300/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-100 hover:bg-amber-400/10"
             onClick={() => {
-              setAgentFilter("all");
-              setSortOrder("oldest");
+              updateQuery('all', 'oldest');
             }}
           >
             Reset
