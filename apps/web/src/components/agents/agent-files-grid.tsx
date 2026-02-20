@@ -15,6 +15,7 @@ export interface AgentFilesGridProps {
 export function AgentFilesGrid({ agents }: AgentFilesGridProps) {
   const [roleFilter, setRoleFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortOrder, setSortOrder] = useState<"recent" | "name">("recent");
 
   const roleCounts = useMemo(() => {
     return agents.reduce<Record<string, number>>((acc, agent) => {
@@ -25,14 +26,26 @@ export function AgentFilesGrid({ agents }: AgentFilesGridProps) {
 
   const filteredAgents = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
-    return agents.filter((agent) => {
-      const matchesRole = roleFilter === "ALL" || agent.role === roleFilter;
-      if (!matchesRole) return false;
-      if (!normalizedQuery) return true;
-      const haystack = `${agent.name} ${agent.role} ${agent.lastMemory?.content ?? ""}`.toLowerCase();
-      return haystack.includes(normalizedQuery);
-    });
-  }, [agents, roleFilter, searchQuery]);
+    return agents
+      .filter((agent) => {
+        const matchesRole = roleFilter === "ALL" || agent.role === roleFilter;
+        if (!matchesRole) return false;
+        if (!normalizedQuery) return true;
+        const haystack = `${agent.name} ${agent.role} ${agent.lastMemory?.content ?? ""}`.toLowerCase();
+        return haystack.includes(normalizedQuery);
+      })
+      .sort((a, b) => {
+        if (sortOrder === "name") {
+          return a.name.localeCompare(b.name);
+        }
+        const aTime = a.lastMemory ? new Date(a.lastMemory.createdAt).getTime() : 0;
+        const bTime = b.lastMemory ? new Date(b.lastMemory.createdAt).getTime() : 0;
+        if (aTime === bTime) {
+          return a.name.localeCompare(b.name);
+        }
+        return bTime - aTime;
+      });
+  }, [agents, roleFilter, searchQuery, sortOrder]);
 
   return (
     <div className="space-y-4">
@@ -89,6 +102,17 @@ export function AgentFilesGrid({ agents }: AgentFilesGridProps) {
             placeholder="Search by agent or memory notes…"
             className="w-full rounded-full border border-white/15 bg-black/40 px-4 py-2 text-sm text-white placeholder:text-white/40 focus:border-indigo-300 focus:outline-none"
           />
+        </label>
+        <label className="flex items-center gap-2 text-xs uppercase tracking-wide text-white/60">
+          Sort
+          <select
+            value={sortOrder}
+            onChange={(event) => setSortOrder(event.target.value as "recent" | "name")}
+            className="rounded-full border border-white/15 bg-black/40 px-3 py-1 text-sm text-white focus:border-indigo-300 focus:outline-none"
+          >
+            <option value="recent">Recent activity</option>
+            <option value="name">Alphabetical</option>
+          </select>
         </label>
       </div>
 

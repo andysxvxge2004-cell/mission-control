@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.32] - 2026-02-20
+- Files tab adds sort controls (recent activity vs alphabetical) so ops can prioritize the freshest intel or scan by name
+
 ## [0.1.31] - 2026-02-20
 - Mission Control Files tab now includes dossier search, role filter chips, and memory previews for faster navigation
 
