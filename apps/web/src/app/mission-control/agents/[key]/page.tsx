@@ -4,6 +4,7 @@ import { prisma } from "@mission-control/db";
 import { MemoryTimeline } from "@/components/agents/memory-timeline";
 import { AddMemoryForm } from "@/components/agents/add-memory-form";
 import { TaskList } from "@/components/tasks/task-list";
+import { AgentActivityTimeline } from "@/components/audit/agent-activity-timeline";
 import { ensureCoreAgents } from "@/lib/core-agents";
 
 interface AgentDetailParams {
@@ -28,22 +29,21 @@ export default async function AgentDetailPage({ params }: AgentDetailParams) {
     notFound();
   }
 
-  const [tasks, roster] = await Promise.all([
+  const [tasks, roster, activityLogs] = await Promise.all([
     prisma.task.findMany({
       where: { agentId: agent.id },
       orderBy: { createdAt: "desc" },
-      include: {
-        agent: { select: { id: true, name: true } },
-        auditLogs: {
-          orderBy: { createdAt: "desc" },
-          take: 5,
-          select: { id: true, action: true, createdAt: true }
-        }
-      }
+      include: { agent: { select: { id: true, name: true } } }
     }),
     prisma.agent.findMany({
       orderBy: { name: "asc" },
       select: { id: true, name: true }
+    }),
+    prisma.auditLog.findMany({
+      where: { task: { agentId: agent.id } },
+      orderBy: { createdAt: "desc" },
+      take: 30,
+      include: { task: { select: { id: true, title: true } } }
     })
   ]);
 
@@ -97,6 +97,14 @@ export default async function AgentDetailPage({ params }: AgentDetailParams) {
             <span className="text-xs uppercase tracking-wide text-white/50">{tasks.length} open</span>
           </div>
           <TaskList tasks={tasks} agents={roster} />
+        </section>
+
+        <section className="space-y-4">
+          <div className="flex items-center justify-between">
+            <h2 className="text-lg font-semibold text-white">Activity timeline</h2>
+            <span className="text-xs uppercase tracking-wide text-white/50">Last 30 events</span>
+          </div>
+          <AgentActivityTimeline logs={activityLogs} />
         </section>
       </div>
     </main>

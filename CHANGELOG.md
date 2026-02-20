@@ -1,8 +1,8 @@
 # Changelog
 
-## [0.1.6] - 2026-02-19
-- Overlay per-task audit activity directly in the execution queue and agent dossiers so dispatchers can correlate status with recent changes
-- Fetch the latest audit events with each task card and render them as inline timelines
+## [0.1.7] - 2026-02-19
+- Add per-agent activity timelines by correlating audit log events with their assigned work
+- Introduce a reusable timeline component for dossiers, including safe metadata rendering
 
 ## [0.1.6] - 2026-02-19
 - Bubble stuck-task counts into dashboard KPIs and show inline warnings atop Execution Queue so leads spot risk immediately
