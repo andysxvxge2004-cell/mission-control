@@ -27,17 +27,25 @@ export function AgentsNeedingMemory({ agents }: AgentsNeedingMemoryProps) {
       </div>
       <ul className="space-y-2 text-sm">
         {withoutMemories.map((agent) => (
-          <li key={agent.id} className="flex flex-wrap items-center justify-between gap-2 rounded-xl bg-black/30 px-3 py-2">
+          <li key={agent.id} className="flex flex-wrap items-center justify-between gap-3 rounded-xl bg-black/30 px-3 py-3">
             <div>
               <p className="text-sm font-semibold">{agent.name}</p>
               <p className="text-xs uppercase tracking-wide text-white/60">{agent.role}</p>
             </div>
-            <Link
-              href={`/mission-control/agents/${agent.id}`}
-              className="text-xs font-semibold uppercase tracking-wide text-rose-100 hover:text-white"
-            >
-              Append memory
-            </Link>
+            <div className="flex flex-wrap gap-2">
+              <Link
+                href={`/mission-control/agents/${agent.id}`}
+                className="rounded-full bg-rose-500/20 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-rose-100 hover:bg-rose-500/30"
+              >
+                Brief agent ↗
+              </Link>
+              <Link
+                href={`/mission-control/agents/${agent.id}`}
+                className="rounded-full border border-rose-400/60 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-rose-50 hover:bg-rose-400/10"
+              >
+                Append memory
+              </Link>
+            </div>
           </li>
         ))}
       </ul>

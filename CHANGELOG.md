@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.10] - 2026-02-19
+- Added dual CTA buttons to the memory hygiene banner so each unbriefed agent can be opened or appended in one click
+
 ## [0.1.9] - 2026-02-19
 - Auto-log `agent.needs_briefing` audit events whenever a new agent is created without memories so gaps get recorded in the timeline
 
