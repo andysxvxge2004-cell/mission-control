@@ -45,6 +45,11 @@ type SavedPreset = {
 
 export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) {
   const [copied, setCopied] = useState(false);
+  type SlackAlertState = {
+    status: "idle" | "loading" | "success" | "info" | "error";
+    message?: string;
+  };
+  const [slackState, setSlackState] = useState<SlackAlertState>({ status: "idle" });
 
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -125,6 +130,47 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
 
     const query = params.toString();
     router.replace(query ? `${pathname}?${query}` : pathname, { scroll: false });
+  };
+
+  const triggerSlackAlert = async () => {
+    if (slackState.status === "loading") return;
+    setSlackState({ status: "loading", message: "Contacting Slack…" });
+
+    try {
+      const response = await fetch("/api/mission-control/overdue/slack", { method: "POST" });
+      const data = await response.json().catch(() => null);
+
+      if (!response.ok || !data?.ok) {
+        const reason = data?.reason === "missing_webhook"
+          ? "Slack webhook URL is missing. Set SLACK_OVERDUE_WEBHOOK_URL to enable alerts."
+          : "Slack webhook call failed. Check server logs for details.";
+        setSlackState({ status: "error", message: reason });
+        return;
+      }
+
+      if (data.sent) {
+        const countLabel = data.count === 1 ? "1 overdue task" : `${data.count} overdue tasks`;
+        setSlackState({ status: "success", message: `Slack notified about ${countLabel}.` });
+        return;
+      }
+
+      if (data.reason === "no_overdue_tasks") {
+        setSlackState({ status: "info", message: "No overdue tasks right now — Slack not pinged." });
+        return;
+      }
+
+      if (data.reason === "missing_webhook") {
+        setSlackState({ status: "error", message: "Slack webhook URL is missing. Set SLACK_OVERDUE_WEBHOOK_URL to enable alerts." });
+        return;
+      }
+
+      setSlackState({ status: "error", message: "Slack hook responded unexpectedly. See server logs." });
+    } catch (error) {
+      setSlackState({
+        status: "error",
+        message: error instanceof Error ? error.message : "Failed to trigger Slack alert."
+      });
+    }
   };
 
   const agentOptions = useMemo(() => {
@@ -323,6 +369,14 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
           >
             {copied ? "Link copied" : "Copy share link"}
           </button>
+          <button
+            type="button"
+            className="rounded-full bg-indigo-500/80 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white hover:bg-indigo-400/80 disabled:cursor-not-allowed disabled:opacity-60"
+            onClick={triggerSlackAlert}
+            disabled={slackState.status === "loading"}
+          >
+            {slackState.status === "loading" ? "Pinging Slack…" : "Ping Slack"}
+          </button>
           <details className="group">
             <summary className="flex cursor-pointer items-center text-xs uppercase tracking-wide text-amber-100 underline decoration-dotted decoration-amber-300/80">
               Legend
@@ -343,6 +397,21 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
           </details>
         </div>
       </header>
+      {slackState.status !== "idle" ? (
+        <p
+          className={`text-xs ${
+            slackState.status === "success"
+              ? "text-emerald-200"
+              : slackState.status === "error"
+                ? "text-rose-200"
+                : "text-white/70"
+          }`}
+          aria-live="polite"
+          role="status"
+        >
+          {slackState.message ?? (slackState.status === "loading" ? "Contacting Slack…" : null)}
+        </p>
+      ) : null}
 
       <div className="space-y-3">
         {pinnedFilters.length ? (

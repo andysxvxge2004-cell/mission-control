@@ -48,4 +48,6 @@
 - 2026-02-20 03:30 MST | [INFO] | roadmap | Roadmap loop idle; no tasks executed.
 - 2026-02-20 03:40 MST | [INFO] | roadmap | Added targets: task SLA tracking + Slack notification hook.
 - 2026-02-20 03:45 MST | [IMPORTANT] | v0.1.25 | Priority-based SLA tracking shipped: task cards show warning/overdue badges, dashboard surfaces SLA breach counts. Files: constants, task metrics helper, task list, mission-control + home pages, ROADMAP.md, CHANGELOG.md. Verify: open Mission Control execution queue and observe SLA alerts plus per-task badges. Next: wire Slack overdue hook.
+- 2026-02-20 04:11 MST | [BLOCKER] | no commit | Autonomous build timed out before responding; manual work continuing.
 
+- 2026-02-20 04:25 MST | [IMPORTANT] | v0.1.26 | Slack overdue webhook endpoint plus in-app "Ping Slack" control shipped; docs updated with env requirements. Files: task-aging-alerts widget, Slack API route/lib, apps/web README, CHANGELOG.md. Verify: set SLACK_OVERDUE_WEBHOOK_URL & MISSION_CONTROL_BASE_URL, load Mission Control → Tasks, press "Ping Slack" to see inline confirmation and Slack message.

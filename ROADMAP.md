@@ -14,7 +14,7 @@ This roadmap tracks the near-term features required to make Mission Control a re
 - [x] Export daily command snapshot (agents, tasks, audits) to markdown for async reporting (shipped in 0.1.22)
 - [x] Weekly digest email summarizing agent load + stuck tasks (shipped in 0.1.24)
 - [x] Task SLA tracking with per-priority thresholds and warning badges (shipped in 0.1.25)
-- [ ] Slack notification hook for overdue tasks
+- [x] Slack notification hook for overdue tasks (shipped in 0.1.26)
 
 ## Later
 - [ ] Smart agent recommendations based on backlog composition (suggest who to staff next)

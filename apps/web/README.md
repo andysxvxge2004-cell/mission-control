@@ -1,36 +1,47 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# Mission Control (web)
 
-## Getting Started
+Next.js app that powers the Mission Control cockpit. It exposes the dashboards, task triage tools, and automation surfaces that keep TradeWise ops humming.
 
-First, run the development server:
+## Local development
 
 ```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+# Install deps at repo root
+pnpm install
+
+# Run the web app in dev mode
+pnpm -C apps/web dev
+
+# Lint everything before you commit
+pnpm -C apps/web lint
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+The app expects a PostgreSQL database provided by `@mission-control/db`. The shared Prisma client is already wired up inside the repo, so you only need to make sure your database is running and `DATABASE_URL` is set at the repo root.
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+## Environment variables
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+| Name | Required | Purpose |
+| --- | --- | --- |
+| `DATABASE_URL` | ✅ | Prisma connection string used throughout Mission Control |
+| `MISSION_CONTROL_BASE_URL` | ⚠️ recommended | Used to build deep links inside outbound alerts (e.g., `/mission-control/tasks`) |
+| `SLACK_OVERDUE_WEBHOOK_URL` | ⚠️ recommended | Incoming webhook that receives the "tasks stuck for 48h+" alert. Falls back to `SLACK_WEBHOOK_URL` if set |
 
-## Learn More
+> Tip: keep these values in a project-level `.env` file or export them before running `pnpm dev`.
 
-To learn more about Next.js, take a look at the following resources:
+## Slack overdue alerts
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+- API route: `POST /api/mission-control/overdue/slack`
+- Behavior: fetches tasks in `DOING` whose `updatedAt` is older than the stale cutoff (48h by default) and posts a summary to Slack.
+- Response contract:
+  - `{ ok: true, sent: true, count: <number> }` when a message is delivered
+  - `{ ok: true, sent: false, reason: "no_overdue_tasks" }` when there's nothing to report
+  - `{ ok: true, sent: false, reason: "missing_webhook" }` when the webhook env var is absent (payload preview is returned for validation)
+  - `{ ok: false, ... }` when Slack responds with an error status
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+The Mission Control → Tasks page now exposes a **Ping Slack** button inside the "Aging alerts" panel. That action hits the same API route, surfaces success/error state inline, and is safe to spam—if no tasks are overdue, it simply tells you so instead of paging Slack.
 
-## Deploy on Vercel
+## Release checklist
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+1. `pnpm -C apps/web lint`
+2. Run through the Mission Control UI at `/mission-control`
+3. (Optional) hit `POST /api/mission-control/overdue/slack` manually to confirm Slack wiring
+4. Update `CHANGELOG.md` + `MISSION_CONTROL_JOURNAL.md`
