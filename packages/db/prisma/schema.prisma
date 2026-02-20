@@ -1,0 +1,48 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "sqlite"
+  url      = "file:./dev.db"
+}
+
+model Agent {
+  id        String   @id @default(cuid())
+  name      String
+  role      String
+  soul      String
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+  memories  RecentMemory[]
+  tasks     Task[]
+}
+
+model RecentMemory {
+  id        String   @id @default(cuid())
+  agent     Agent    @relation(fields: [agentId], references: [id])
+  agentId   String
+  content   String
+  createdAt DateTime @default(now())
+}
+
+model Task {
+  id          String   @id @default(cuid())
+  title       String
+  description String?
+  status      String   @default("TODO")
+  agent       Agent?   @relation(fields: [agentId], references: [id])
+  agentId     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  auditLogs   AuditLog[]
+}
+
+model AuditLog {
+  id        String   @id @default(cuid())
+  task      Task?    @relation(fields: [taskId], references: [id])
+  taskId    String?
+  action    String
+  metadata  String?
+  createdAt DateTime @default(now())
+}
