@@ -119,51 +119,73 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
         </div>
       </header>
 
-      <div className="flex flex-wrap items-center gap-3 text-xs text-white/80">
-        <label className="flex flex-col gap-1">
-          Agent
-          <select
-            className="rounded-md border border-white/20 bg-black/30 px-3 py-1 text-sm text-white focus:border-amber-300 focus:outline-none"
-            value={agentFilter}
-            onChange={(event) => {
-              const value = event.target.value;
-              updateQuery(value, sortOrder);
-            }}
-          >
-            <option value="all">All agents</option>
-            <option value="unassigned">Unassigned</option>
-            {agentOptions.map((agent) => (
-              <option key={agent.id} value={agent.id}>
-                {agent.name}
-              </option>
-            ))}
-          </select>
-        </label>
-        <label className="flex flex-col gap-1">
-          Order
-          <select
-            className="rounded-md border border-white/20 bg-black/30 px-3 py-1 text-sm text-white focus:border-amber-300 focus:outline-none"
-            value={sortOrder}
-            onChange={(event) => {
-              const value = event.target.value as SortOrder;
-              updateQuery(agentFilter, value);
-            }}
-          >
-            <option value="oldest">Oldest first</option>
-            <option value="newest">Newest first</option>
-          </select>
-        </label>
-        {hasFilters ? (
-          <button
-            type="button"
-            className="rounded-md border border-amber-300/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-100 hover:bg-amber-400/10"
-            onClick={() => {
-              updateQuery('all', 'oldest');
-            }}
-          >
-            Reset
-          </button>
-        ) : null}
+      <div className="space-y-3">
+        <div className="flex flex-wrap gap-2 text-xs">
+          {[
+            { label: 'All', value: 'all' },
+            { label: 'Unassigned', value: 'unassigned' },
+            ...agentOptions.slice(0, 4).map((agent) => ({ label: agent.name, value: agent.id }))
+          ].map((filter) => (
+            <button
+              key={filter.value}
+              type="button"
+              className={`rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wide ${
+                agentFilter === filter.value
+                  ? 'border-amber-300 bg-amber-400/20 text-amber-50'
+                  : 'border-white/20 text-white/70 hover:border-amber-200 hover:text-amber-100'
+              }`}
+              onClick={() => updateQuery(filter.value, sortOrder)}
+            >
+              {filter.label}
+            </button>
+          ))}
+        </div>
+        <div className="flex flex-wrap items-center gap-3 text-xs text-white/80">
+          <label className="flex flex-col gap-1">
+            Agent
+            <select
+              className="rounded-md border border-white/20 bg-black/30 px-3 py-1 text-sm text-white focus:border-amber-300 focus:outline-none"
+              value={agentFilter}
+              onChange={(event) => {
+                const value = event.target.value;
+                updateQuery(value, sortOrder);
+              }}
+            >
+              <option value="all">All agents</option>
+              <option value="unassigned">Unassigned</option>
+              {agentOptions.map((agent) => (
+                <option key={agent.id} value={agent.id}>
+                  {agent.name}
+                </option>
+              ))}
+            </select>
+          </label>
+          <label className="flex flex-col gap-1">
+            Order
+            <select
+              className="rounded-md border border-white/20 bg-black/30 px-3 py-1 text-sm text-white focus:border-amber-300 focus:outline-none"
+              value={sortOrder}
+              onChange={(event) => {
+                const value = event.target.value as SortOrder;
+                updateQuery(agentFilter, value);
+              }}
+            >
+              <option value="oldest">Oldest first</option>
+              <option value="newest">Newest first</option>
+            </select>
+          </label>
+          {hasFilters ? (
+            <button
+              type="button"
+              className="rounded-md border border-amber-300/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-100 hover:bg-amber-400/10"
+              onClick={() => {
+                updateQuery('all', 'oldest');
+              }}
+            >
+              Reset
+            </button>
+          ) : null}
+        </div>
       </div>
 
       {filteredTasks.length === 0 ? (

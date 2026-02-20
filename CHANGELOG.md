@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.17] - 2026-02-20
+- Added quick-filter chips (All/Unassigned/top agents) to the aging alerts panel for one-tap drilldowns
+
 ## [0.1.16] - 2026-02-20
 - Persist aging-alert filters (agent + sort) in the URL so sharable links stay scoped to the same stuck-task view
 
