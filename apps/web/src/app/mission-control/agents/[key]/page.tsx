@@ -32,7 +32,14 @@ export default async function AgentDetailPage({ params }: AgentDetailParams) {
     prisma.task.findMany({
       where: { agentId: agent.id },
       orderBy: { createdAt: "desc" },
-      include: { agent: { select: { id: true, name: true } } }
+      include: {
+        agent: { select: { id: true, name: true } },
+        auditLogs: {
+          orderBy: { createdAt: "desc" },
+          take: 5,
+          select: { id: true, action: true, createdAt: true }
+        }
+      }
     }),
     prisma.agent.findMany({
       orderBy: { name: "asc" },

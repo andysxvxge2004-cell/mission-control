@@ -54,7 +54,14 @@ export default async function Home({ searchParams }: HomePageProps) {
     prisma.task.findMany({
       where: taskWhere,
       orderBy: { createdAt: "desc" },
-      include: { agent: { select: { id: true, name: true } } }
+      include: {
+        agent: { select: { id: true, name: true } },
+        auditLogs: {
+          orderBy: { createdAt: "desc" },
+          take: 3,
+          select: { id: true, action: true, createdAt: true }
+        }
+      }
     }),
     prisma.auditLog.findMany({
       orderBy: { createdAt: "desc" },

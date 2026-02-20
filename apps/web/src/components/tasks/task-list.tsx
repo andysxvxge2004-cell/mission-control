@@ -1,11 +1,14 @@
 import { updateTask } from "@/app/actions";
-import type { Task, Agent } from "@mission-control/db";
+import type { Task, Agent, AuditLog } from "@mission-control/db";
 import { TASK_STATUSES, type TaskStatus } from "@/lib/constants";
 import { formatDateTime } from "@/lib/formatters";
 import { STALE_THRESHOLD_MS } from "@/lib/task-metrics";
 import { SubmitButton } from "../submit-button";
 
-export type TaskWithAgent = Task & { agent?: Pick<Agent, "id" | "name"> | null };
+export type TaskWithAgent = Task & {
+  agent?: Pick<Agent, "id" | "name"> | null;
+  auditLogs?: Pick<AuditLog, "id" | "action" | "createdAt">[];
+};
 
 type TaskListProps = {
   tasks: TaskWithAgent[];
@@ -78,6 +81,22 @@ function TaskCard({ task, agents }: { task: TaskWithAgent; agents: Pick<Agent, "
       </div>
       {task.description ? <p className="mt-2 text-sm text-white/70">{task.description}</p> : null}
       <p className="mt-2 text-[11px] uppercase tracking-wide text-white/50">Opened {formatDateTime(task.createdAt)}</p>
+      {task.auditLogs && task.auditLogs.length ? (
+        <div className="mt-3 rounded-lg border border-white/10 bg-white/5 p-3">
+          <p className="text-[11px] uppercase tracking-wide text-white/50">Recent activity</p>
+          <ol className="mt-2 space-y-2">
+            {task.auditLogs.map((log) => (
+              <li key={log.id} className="flex items-center justify-between gap-3 text-xs text-white/80">
+                <div className="flex items-center gap-2">
+                  <span className="h-1.5 w-1.5 rounded-full bg-indigo-300" />
+                  <span className="font-semibold text-white">{formatAuditAction(log.action)}</span>
+                </div>
+                <span className="text-white/60">{formatDateTime(log.createdAt)}</span>
+              </li>
+            ))}
+          </ol>
+        </div>
+      ) : null}
       {staleness.isStale ? (
         <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100">
           <span className="rounded-full bg-amber-500/30 px-2 py-1 text-[10px] uppercase tracking-wide">Stuck</span>
@@ -136,4 +155,11 @@ function formatDuration(durationMs: number) {
   }
 
   return `${Math.max(hours, 1)}h`;
+}
+
+function formatAuditAction(action: string) {
+  return action
+    .split(".")
+    .map((part) => part.charAt(0).toUpperCase() + part.slice(1))
+    .join(" ");
 }

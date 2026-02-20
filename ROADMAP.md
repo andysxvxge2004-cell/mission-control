@@ -10,5 +10,5 @@ This roadmap tracks the near-term features required to make Mission Control a re
 - [x] Task aging alerts that surface items stuck in "Doing" beyond 48 hours (shipped in 0.1.5)
 
 ## Later
-- [ ] Timeline overlays that correlate audit log activity with task changes
+- [x] Timeline overlays that correlate audit log activity with task changes (shipped in 0.1.6)
 - [ ] Workspace notifications that nudge when new agents are added without souls/memories

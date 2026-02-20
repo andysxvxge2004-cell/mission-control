@@ -1,6 +1,10 @@
 # Changelog
 
 ## [0.1.6] - 2026-02-19
+- Overlay per-task audit activity directly in the execution queue and agent dossiers so dispatchers can correlate status with recent changes
+- Fetch the latest audit events with each task card and render them as inline timelines
+
+## [0.1.6] - 2026-02-19
 - Bubble stuck-task counts into dashboard KPIs and show inline warnings atop Execution Queue so leads spot risk immediately
 - Centralize the 48h aging threshold helper for reuse across server metrics and client cards
 
