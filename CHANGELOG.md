@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.28] - 2026-02-20
+- Added an escalation playbooks library with templated comms snippets inside Mission Control → Intelligence
+- Persisted playbooks in the database so default critical/high/medium responses stay versioned and editable
+
 ## [0.1.27] - 2026-02-20
 - Added a staffing recommendations panel that surfaces unassigned backlog counts by priority and the top agents with available capacity to take the next mission
 

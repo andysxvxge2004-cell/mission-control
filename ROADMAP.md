@@ -18,4 +18,4 @@ This roadmap tracks the near-term features required to make Mission Control a re
 
 ## Later
 - [x] Smart agent recommendations based on backlog composition (suggest who to staff next) (shipped in 0.1.27)
-- [ ] Escalation playbooks library with templated response steps
+- [x] Escalation playbooks library with templated response steps (shipped in 0.1.28)

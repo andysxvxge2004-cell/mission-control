@@ -47,3 +47,25 @@ model AuditLog {
   metadata  String?
   createdAt DateTime @default(now())
 }
+
+model EscalationPlaybook {
+  id                     String   @id @default(cuid())
+  title                  String
+  scenario               String
+  impactLevel            String
+  owner                  String
+  steps                  EscalationPlaybookStep[]
+  communicationTemplate  String?
+  createdAt              DateTime @default(now())
+  updatedAt              DateTime @updatedAt
+}
+
+model EscalationPlaybookStep {
+  id          String              @id @default(cuid())
+  playbook    EscalationPlaybook  @relation(fields: [playbookId], references: [id], onDelete: Cascade)
+  playbookId  String
+  position    Int
+  instruction String
+  createdAt   DateTime            @default(now())
+}
+
