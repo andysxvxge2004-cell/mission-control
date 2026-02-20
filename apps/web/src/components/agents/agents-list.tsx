@@ -77,6 +77,19 @@ export function AgentsList({ agents, hrefPrefix = "/agents" }: AgentsListProps) 
                   {status.label}: {workload[status.id]}
                 </span>
               ))}
+              {needsBriefing ? (
+                <button
+                  type="button"
+                  aria-label={`Add first memory for ${agent.name}`}
+                  className="rounded-full bg-rose-500/20 px-3 py-1 text-[11px] font-semibold uppercase tracking-wide text-rose-100 focus:outline-none focus:ring-2 focus:ring-rose-300"
+                  onClick={(event) => {
+                    event.preventDefault();
+                    window.location.assign(`/mission-control/agents/${agent.id}`);
+                  }}
+                >
+                  Append memory ↗
+                </button>
+              ) : null}
             </div>
             {latestMemory ? (
               <div className="mt-4 rounded-lg bg-black/40 p-3 text-xs text-white/70">
