@@ -87,6 +87,7 @@ const IMPACT_BADGES: Record<string, string> = {
 
 export function EscalationPlaybookLibrary({ playbooks }: { playbooks: EscalationPlaybookView[] }) {
   const [copiedId, setCopiedId] = useState<string | null>(null);
+  const [copiedPlaybookId, setCopiedPlaybookId] = useState<string | null>(null);
   const [impactFilter, setImpactFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
   const [sortKey, setSortKey] = useState<"IMPACT" | "TITLE" | "UPDATED">("IMPACT");
@@ -100,6 +101,22 @@ export function EscalationPlaybookLibrary({ playbooks }: { playbooks: Escalation
       setTimeout(() => setCopiedId((current) => (current === id ? null : current)), 2200);
     } catch (error) {
       console.error("Failed to copy playbook template", error);
+    }
+  };
+
+  const handleCopyPlaybook = async (playbook: EscalationPlaybookView) => {
+    const lines = [
+      `**${playbook.title}** (${playbook.impactLevel})`,
+      playbook.scenario.trim(),
+      "",
+      ...playbook.steps.map((step, idx) => `${idx + 1}. ${step}`)
+    ].join("\n");
+    try {
+      await navigator.clipboard.writeText(lines);
+      setCopiedPlaybookId(playbook.id);
+      setTimeout(() => setCopiedPlaybookId((current) => (current === playbook.id ? null : current)), 2200);
+    } catch (error) {
+      console.error('Failed to copy playbook summary', error);
     }
   };
 
@@ -222,6 +239,13 @@ export function EscalationPlaybookLibrary({ playbooks }: { playbooks: Escalation
                   onClick={() => setEditingId((current) => (current === playbook.id ? null : playbook.id))}
                 >
                   {editingId === playbook.id ? "Close editor" : "Edit"}
+                </button>
+                <button
+                  type="button"
+                  className="rounded-full border border-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/70 transition hover:border-emerald-300 hover:text-emerald-100"
+                  onClick={() => handleCopyPlaybook(playbook)}
+                >
+                  {copiedPlaybookId === playbook.id ? "Copied playbook" : "Copy summary"}
                 </button>
                 <DuplicatePlaybookForm playbookId={playbook.id} title={playbook.title} />
                 <DeletePlaybookForm playbookId={playbook.id} title={playbook.title} />

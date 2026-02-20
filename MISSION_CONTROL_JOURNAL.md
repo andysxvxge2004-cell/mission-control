@@ -69,3 +69,5 @@
 - 2026-02-20 10:06 MST | [IMPORTANT] | 0.1.35 | Escalation Playbooks re-enabled after APPROVED: SCHEMA (reverted quarantine).
 
 - 2026-02-20 10:16 MST | [IMPORTANT] | v0.1.34 | Escalation library cards now show last-updated timestamps and expose impact/title/recency sorting, fed by updatedAt from Prisma. Files: library component, intelligence page, CHANGELOG.md. Verify: load /mission-control/intelligence, use the Sort dropdown, and confirm timestamp badges update.
+
+- 2026-02-20 10:26 MST | [IMPORTANT] | v0.1.35 | Escalation playbook cards gained a Copy summary control that pushes scenario + ordered steps to the clipboard, expediting incident handoffs. Files: playbook library component, CHANGELOG.md. Verify: open Intelligence, click Copy summary, and paste into Slack/notes.
