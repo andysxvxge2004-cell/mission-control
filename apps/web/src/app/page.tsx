@@ -153,9 +153,7 @@ export default async function Home({ searchParams }: HomePageProps) {
           </div>
         </header>
 
-        {agentsMissingMemories.length ? (
-          <AgentsNeedingMemory agents={agentsMissingMemories} />
-        ) : null}
+        <AgentsNeedingMemory agents={agents} referenceTime={now} />
 
         <section className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-4">

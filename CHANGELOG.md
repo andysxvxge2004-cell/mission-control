@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.11] - 2026-02-19
+- Memory hygiene banner now shows how long it has been since each agent was briefed and includes stale (3d+) agents alongside never-briefed ones
+- Added relative time formatter utility for concise "Xd Yh ago" strings
+
 ## [0.1.10] - 2026-02-19
 - Added dual CTA buttons to the memory hygiene banner so each unbriefed agent can be opened or appended in one click
 
