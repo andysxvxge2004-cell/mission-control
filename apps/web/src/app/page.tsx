@@ -197,7 +197,7 @@ export default async function Home({ searchParams }: HomePageProps) {
               <h2 className="text-xl font-semibold text-white">Agent roster</h2>
               <span className="text-xs uppercase tracking-wide text-white/50">Live</span>
             </div>
-            <AgentsList agents={filteredAgents} hrefPrefix="/mission-control/agents" />
+            <AgentsList agents={filteredAgents} hrefPrefix="/mission-control/agents" referenceTime={now.toISOString()} />
           </div>
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-white">Create new agent</h2>

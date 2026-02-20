@@ -3,6 +3,8 @@ import { notFound } from "next/navigation";
 import { prisma } from "@mission-control/db";
 import { ensureCoreAgents } from "@/lib/core-agents";
 import { formatDateTime } from "@/lib/formatters";
+import { getStaleCutoffDate } from "@/lib/task-metrics";
+import { AgentFolderViewer, type AgentFolder } from "@/components/agents/agent-folder-viewer";
 
 interface AgentFilesParams {
   params: {
@@ -18,7 +20,11 @@ export default async function AgentFilesPage({ params }: AgentFilesParams) {
   const agent = await prisma.agent.findUnique({
     where: { id: params.key },
     include: {
-      memories: { orderBy: { createdAt: "desc" }, take: 50 }
+      memories: { orderBy: { createdAt: "desc" }, take: 50 },
+      tasks: {
+        orderBy: { createdAt: "desc" },
+        take: 25
+      }
     }
   });
 
@@ -26,9 +32,90 @@ export default async function AgentFilesPage({ params }: AgentFilesParams) {
     notFound();
   }
 
+  const auditLogs = await prisma.auditLog.findMany({
+    where: {
+      task: {
+        agentId: agent.id
+      }
+    },
+    orderBy: { createdAt: "desc" },
+    take: 25,
+    include: {
+      task: { select: { title: true } }
+    }
+  });
+
+  const now = new Date();
+  const staleThreshold = getStaleCutoffDate(now.getTime());
+
+  const openTasks = agent.tasks.filter((task) => task.status !== "DONE");
+  const doneTasks = agent.tasks.filter((task) => task.status === "DONE");
+  const stuckTasks = agent.tasks.filter((task) => task.status === "DOING" && task.updatedAt < staleThreshold);
+
+  const folderData: AgentFolder[] = [
+    {
+      id: "role",
+      title: "Role Brief",
+      summary: agent.role,
+      copyText: agent.role,
+      entries: [
+        {
+          title: "Role",
+          content: agent.role
+        }
+      ]
+    },
+    {
+      id: "soul",
+      title: "Soul File",
+      summary: agent.soul.slice(0, 120),
+      copyText: agent.soul,
+      entries: [
+        {
+          title: "Soul",
+          content: agent.soul
+        }
+      ]
+    },
+    {
+      id: "memories",
+      title: "Memory Roll",
+      summary: agent.memories.length ? `${agent.memories.length} captured` : "No memories yet",
+      copyText: agent.memories.map((memory) => `${formatDateTime(memory.createdAt)} — ${memory.content}`).join("\n"),
+      entries: agent.memories.slice(0, 8).map((memory) => ({
+        title: formatDateTime(memory.createdAt),
+        content: memory.content
+      }))
+    },
+    {
+      id: "audits",
+      title: "Audit Trail",
+      summary: auditLogs.length ? `${auditLogs.length} events` : "No activity",
+      copyText: auditLogs.map((log) => `${formatDateTime(log.createdAt)} — ${log.action} (${log.task?.title ?? "General"})`).join("\n"),
+      entries: auditLogs.slice(0, 8).map((log) => ({
+        title: log.action,
+        content: log.task?.title ?? "General event",
+        meta: formatDateTime(log.createdAt)
+      }))
+    },
+    {
+      id: "tasks",
+      title: "Task Ledger",
+      summary: `${openTasks.length} open / ${doneTasks.length} done / ${stuckTasks.length} stuck`,
+      copyText: agent.tasks
+        .map((task) => `[${task.status}] ${task.title}`)
+        .join("\n"),
+      entries: agent.tasks.slice(0, 8).map((task) => ({
+        title: task.title,
+        content: task.description ?? "No description",
+        meta: `${task.status} • ${formatDateTime(task.updatedAt)}`
+      }))
+    }
+  ];
+
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10 text-white">
-      <div className="mx-auto flex max-w-4xl flex-col gap-6">
+      <div className="mx-auto flex max-w-5xl flex-col gap-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <p className="text-xs uppercase tracking-[0.3em] text-indigo-300">Agent files</p>
@@ -43,37 +130,10 @@ export default async function AgentFilesPage({ params }: AgentFilesParams) {
           </Link>
         </div>
 
-        <section className="space-y-4 rounded-3xl border border-white/10 bg-white/5 p-6">
-          <header>
-            <p className="text-xs uppercase tracking-wide text-white/60">Role file</p>
-            <h2 className="text-2xl font-semibold text-white">{agent.role}</h2>
-          </header>
-          <article className="text-white/80">{agent.soul}</article>
-        </section>
-
-        <section className="space-y-3">
-          <div className="flex items-center justify-between">
-            <h3 className="text-lg font-semibold text-white">Recent memory roll</h3>
-            <span className="text-xs uppercase tracking-wide text-white/50">{agent.memories.length} entries</span>
-          </div>
-          <div className="space-y-3">
-            {agent.memories.length === 0 ? (
-              <p className="text-sm text-white/60">No memories recorded.</p>
-            ) : (
-              agent.memories.map((memory) => (
-                <article
-                  key={memory.id}
-                  className="rounded-2xl border border-white/10 bg-black/30 p-4"
-                >
-                  <p className="text-sm text-white/80">{memory.content}</p>
-                  <p className="mt-2 text-[11px] uppercase tracking-wide text-white/50">
-                    {formatDateTime(memory.createdAt)}
-                  </p>
-                </article>
-              ))
-            )}
-          </div>
-        </section>
+        <AgentFolderViewer
+          agentName={agent.name}
+          folders={folderData}
+        />
       </div>
     </main>
   );
