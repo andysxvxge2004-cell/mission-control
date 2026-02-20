@@ -179,6 +179,12 @@ export default async function MissionControlPage({ searchParams }: MissionContro
           >
             Weekly digest
           </a>
+          <a
+            href="/api/mission-control/digest?format=slack"
+            className="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:border-indigo-300 hover:text-indigo-200"
+          >
+            Slack preview
+          </a>
         </div>
       </div>
 

@@ -3,6 +3,13 @@ import { formatRelativeTime } from "@/lib/formatters";
 import { TASK_STATUSES } from "@/lib/constants";
 import { STALE_THRESHOLD_MS } from "@/lib/task-metrics";
 
+const SECTION_MAP = {
+  load: "load",
+  stuck: "stuck",
+  tasks: "tasks",
+  audits: "audits"
+} as const;
+
 function formatDate(date: Date) {
   return new Intl.DateTimeFormat("en-US", {
     dateStyle: "full",
@@ -10,7 +17,22 @@ function formatDate(date: Date) {
   }).format(date);
 }
 
-export async function GET() {
+function parseSections(param?: string | string[]) {
+  if (!param) return Object.keys(SECTION_MAP);
+  const values = Array.isArray(param) ? param : param.split(",");
+  const valid = values.filter((value) => value in SECTION_MAP);
+  return valid.length ? valid : Object.keys(SECTION_MAP);
+}
+
+function parseFormat(param?: string | string[]) {
+  if (param === "slack") return "slack" as const;
+  return "markdown" as const;
+}
+
+export async function GET(request: Request) {
+  const { searchParams } = new URL(request.url);
+  const selectedSections = parseSections(searchParams.get("sections") ?? undefined);
+  const format = parseFormat(searchParams.get("format") ?? undefined);
   const now = new Date();
   const staleCutoff = new Date(now.getTime() - STALE_THRESHOLD_MS);
 
@@ -86,12 +108,28 @@ export async function GET() {
 
   const overallTasks = `## Task status\n${statusCounts.map((status) => `- ${status.label}: ${status.count}`).join("\n")}\n\n`;
 
-  const digest = `${header}${intro}${loadSection}${stuckSection}${overallTasks}`;
+  const sections: string[] = [];
+  if (selectedSections.includes("load")) sections.push(loadSection);
+  if (selectedSections.includes("stuck")) sections.push(stuckSection);
+  if (selectedSections.includes("tasks")) sections.push(overallTasks);
 
-  return new Response(digest, {
+  let body: string;
+  if (format === "slack") {
+    const lines = sections
+      .map((section) => section.trim().split("\n").filter(Boolean))
+      .flat();
+    body = lines.join("\n");
+  } else {
+    body = `${header}${intro}${sections.join("\n")}`;
+  }
+
+  const contentType = format === "slack" ? "text/plain; charset=utf-8" : "text/plain; charset=utf-8";
+  const filename = `mission-control-digest-${now.toISOString().slice(0, 10)}${format === "slack" ? "-slack.txt" : ".txt"}`;
+
+  return new Response(body, {
     headers: {
-      "content-type": "text/plain; charset=utf-8",
-      "content-disposition": `attachment; filename="mission-control-weekly-digest-${now.toISOString().slice(0, 10)}.txt"`
+      "content-type": contentType,
+      "content-disposition": `attachment; filename="${filename}"`
     }
   });
 }

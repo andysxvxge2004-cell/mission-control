@@ -19,6 +19,7 @@ This roadmap tracks the near-term features required to make Mission Control a re
 - [x] Files tab search + role filters so dispatch can jump into the right dossier instantly (shipped in 0.1.31)
 - [x] Files tab sorting controls (recent activity vs. alphabetical) so ops can choose preferred ordering (shipped in 0.1.32)
 - [x] Audit log filters + search controls for faster forensic triage (shipped in 0.1.30)
+- [x] Mission Control digest customization (choose which sections export + optional Slack delivery) (shipped in 0.1.33)
 
 ## Later
 - [x] Smart agent recommendations based on backlog composition (suggest who to staff next) (shipped in 0.1.27)

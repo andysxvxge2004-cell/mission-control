@@ -1,7 +1,10 @@
 # Changelog
 
+## [0.1.33] - 2026-02-20
+- Mission Control digests can now be customized (choose sections + Slack/plain formats) before export
+
 ## [0.1.32] - 2026-02-20
-- Added one-click duplication for escalation playbooks so ops can clone a runbook (steps + comms) before editing
+- Files tab adds sort controls (recent activity vs alphabetical) so ops can prioritize the freshest intel or scan by name
 
 ## [0.1.31] - 2026-02-20
 - Mission Control Files tab now includes dossier search, role filter chips, and memory previews for faster navigation
