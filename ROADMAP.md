@@ -12,5 +12,6 @@ This roadmap tracks the near-term features required to make Mission Control a re
 - [ ] Agent search + quick-jump to dossiers directly from the roster
 
 ## Later
+- [x] Aging alert quick-filter chips for the most common owners (shipped in 0.1.17)
 - [x] Timeline overlays that correlate audit log activity with task changes (shipped in 0.1.7)
 - [x] Workspace notifications that nudge when new agents are added without souls/memories (shipped in 0.1.9)

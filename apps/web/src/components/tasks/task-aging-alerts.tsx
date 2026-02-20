@@ -64,6 +64,18 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
       .sort((a, b) => a.name.localeCompare(b.name));
   }, [tasks]);
 
+  const ownershipCounts = useMemo(() => {
+    const map = new Map<string, { name: string; count: number }>();
+    tasks.forEach((task) => {
+      const key = task.agent?.id ?? 'unassigned';
+      const name = task.agent?.name ?? 'Unassigned';
+      map.set(key, { name, count: (map.get(key)?.count ?? 0) + 1 });
+    });
+    return Array.from(map.entries())
+      .map(([id, meta]) => ({ id, ...meta }))
+      .sort((a, b) => b.count - a.count);
+  }, [tasks]);
+
   const filteredTasks = useMemo(() => {
     const taskCopy = tasks.filter((task) => {
       if (agentFilter === "all") return true;
@@ -124,7 +136,7 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
           {[
             { label: 'All', value: 'all' },
             { label: 'Unassigned', value: 'unassigned' },
-            ...agentOptions.slice(0, 4).map((agent) => ({ label: agent.name, value: agent.id }))
+            ...ownershipCounts.slice(0, 4).map((entry) => ({ label: `${entry.name} (${entry.count})`, value: entry.id }))
           ].map((filter) => (
             <button
               key={filter.value}
