@@ -68,3 +68,4 @@
 - 2026-02-20 05:17 MST | [IMPORTANT] | v0.1.32 | Escalation playbooks can now be duplicated in one click; new server action clones metadata, steps, and comms, and the library exposes a Duplicate button next to Edit/Delete. Files: actions, library component, new duplicate form, CHANGELOG.md. Verify: open Intelligence, hit Duplicate on any playbook, ensure a '(copy)' version appears.
 - 2026-02-20 10:06 MST | [IMPORTANT] | 0.1.35 | Escalation Playbooks re-enabled after APPROVED: SCHEMA (reverted quarantine).
 
+- 2026-02-20 10:16 MST | [IMPORTANT] | v0.1.34 | Escalation library cards now show last-updated timestamps and expose impact/title/recency sorting, fed by updatedAt from Prisma. Files: library component, intelligence page, CHANGELOG.md. Verify: load /mission-control/intelligence, use the Sort dropdown, and confirm timestamp badges update.

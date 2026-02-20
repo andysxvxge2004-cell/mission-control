@@ -4,6 +4,7 @@ import { useMemo, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { deleteEscalationPlaybook, duplicateEscalationPlaybook } from "@/app/actions";
 import { EscalationPlaybookEditor } from "./escalation-playbook-editor";
+import { formatRelativeTime } from "@/lib/formatters";
 import { ESCALATION_IMPACT_LEVELS, type EscalationImpactLevel } from "@/lib/escalation-playbooks";
 
 export type EscalationPlaybookView = {
@@ -12,6 +13,7 @@ export type EscalationPlaybookView = {
   scenario: string;
   impactLevel: EscalationImpactLevel;
   owner: string;
+  updatedAt: string;
   steps: string[];
   communicationTemplate?: string | null;
 };
@@ -69,6 +71,13 @@ function DeletePlaybookForm({ playbookId, title }: DeletePlaybookFormProps) {
   );
 }
 
+const IMPACT_ORDER: Record<EscalationImpactLevel, number> = {
+  Critical: 0,
+  High: 1,
+  Medium: 2,
+  Low: 3
+};
+
 const IMPACT_BADGES: Record<string, string> = {
   Critical: "bg-rose-500/20 text-rose-100 border border-rose-300/30",
   High: "bg-amber-500/20 text-amber-100 border border-amber-300/30",
@@ -80,6 +89,7 @@ export function EscalationPlaybookLibrary({ playbooks }: { playbooks: Escalation
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [impactFilter, setImpactFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
+  const [sortKey, setSortKey] = useState<"IMPACT" | "TITLE" | "UPDATED">("IMPACT");
   const [editingId, setEditingId] = useState<string | null>(null);
 
   const handleCopy = async (id: string, template?: string | null) => {
@@ -110,6 +120,20 @@ export function EscalationPlaybookLibrary({ playbooks }: { playbooks: Escalation
       return haystack.includes(normalizedQuery);
     });
   }, [impactFilter, playbooks, searchQuery]);
+
+  const sortedPlaybooks = useMemo(() => {
+    return [...filteredPlaybooks].sort((a, b) => {
+      if (sortKey === "TITLE") {
+        return a.title.localeCompare(b.title);
+      }
+      if (sortKey === "UPDATED") {
+        return new Date(b.updatedAt).getTime() - new Date(a.updatedAt).getTime();
+      }
+      const impactDiff = (IMPACT_ORDER[a.impactLevel] ?? 99) - (IMPACT_ORDER[b.impactLevel] ?? 99);
+      if (impactDiff !== 0) return impactDiff;
+      return a.title.localeCompare(b.title);
+    });
+  }, [filteredPlaybooks, sortKey]);
 
   return (
     <div className="space-y-4">
@@ -145,6 +169,20 @@ export function EscalationPlaybookLibrary({ playbooks }: { playbooks: Escalation
             );
           })}
         </div>
+        <div className="flex flex-1 flex-wrap items-center justify-end gap-3">
+          <label className="text-xs uppercase tracking-wide text-white/50">
+            <span className="sr-only">Sort playbooks</span>
+            <select
+              value={sortKey}
+              onChange={(event) => setSortKey(event.target.value as "IMPACT" | "TITLE" | "UPDATED")}
+              className="rounded-full border border-white/15 bg-black/40 px-3 py-2 text-xs text-white focus:border-indigo-300 focus:outline-none"
+            >
+              <option value="IMPACT">Sort by impact</option>
+              <option value="TITLE">Sort by title</option>
+              <option value="UPDATED">Sort by last update</option>
+            </select>
+          </label>
+        </div>
         <label className="flex-1 min-w-[220px]">
           <span className="sr-only">Search playbooks</span>
           <input
@@ -163,7 +201,7 @@ export function EscalationPlaybookLibrary({ playbooks }: { playbooks: Escalation
       ) : null}
 
       <div className="grid gap-4 lg:grid-cols-2">
-        {filteredPlaybooks.map((playbook) => (
+        {sortedPlaybooks.map((playbook) => (
           <article key={playbook.id} className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-inner shadow-black/20">
             <header className="flex flex-wrap items-center gap-2">
               <div className="flex-1">
@@ -191,6 +229,7 @@ export function EscalationPlaybookLibrary({ playbooks }: { playbooks: Escalation
             </header>
 
             <p className="mt-3 text-sm text-white/70">{playbook.scenario}</p>
+            <div className="mt-2 text-xs text-white/50">Last updated {formatRelativeTime(new Date(playbook.updatedAt), new Date())}</div>
 
             <div className="mt-4 space-y-2">
               <p className="text-xs uppercase tracking-wide text-white/40">Response steps</p>

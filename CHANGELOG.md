@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.34] - 2026-02-20
+- Escalation library now shows last-updated timestamps and supports impact/title/recency sorting so ops can prioritize the freshest runbook in a click.
+
 ## [0.1.35] - 2026-02-20
 - WHAT: Re-enabled Escalation Playbooks after APPROVED: SCHEMA, exposing the full library + CRUD tools in Mission Control Intelligence.
 - WHY: Teams need ready-to-run escalation plans now that the schema is sanctioned.
