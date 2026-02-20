@@ -115,14 +115,24 @@ export default async function MissionControlPage({ searchParams }: MissionContro
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-white/10 bg-white/5 p-4">
         <div>
           <p className="text-xs uppercase tracking-wide text-white/60">Reporting</p>
-          <p className="text-sm text-white/70">Export a markdown snapshot of agents, tasks, and recent audits for async handoffs.</p>
+          <p className="text-sm text-white/70">
+            Export a markdown snapshot for daily handoffs or pull the weekly digest that summarizes agent load and stuck work.
+          </p>
         </div>
-        <a
-          href="/api/mission-control/snapshot"
-          className="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:border-indigo-300 hover:text-indigo-200"
-        >
-          Export snapshot
-        </a>
+        <div className="flex flex-wrap gap-2">
+          <a
+            href="/api/mission-control/snapshot"
+            className="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:border-indigo-300 hover:text-indigo-200"
+          >
+            Export snapshot
+          </a>
+          <a
+            href="/api/mission-control/digest"
+            className="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:border-indigo-300 hover:text-indigo-200"
+          >
+            Weekly digest
+          </a>
+        </div>
       </div>
 
       <section className="grid gap-6 lg:grid-cols-3">
