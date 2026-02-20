@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.6] - 2026-02-19
+- Bubble stuck-task counts into dashboard KPIs and show inline warnings atop Execution Queue so leads spot risk immediately
+- Centralize the 48h aging threshold helper for reuse across server metrics and client cards
+
 ## [0.1.5] - 2026-02-19
 - Surface a dedicated aging-alerts panel that lists every DOING task idle for 48+ hours across dashboards
 - Highlight each stuck task with staleness badges, last-update timestamps, and agent context for fast triage

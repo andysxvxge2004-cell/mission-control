@@ -2,6 +2,7 @@ import { updateTask } from "@/app/actions";
 import type { Task, Agent } from "@mission-control/db";
 import { TASK_STATUSES, type TaskStatus } from "@/lib/constants";
 import { formatDateTime } from "@/lib/formatters";
+import { STALE_THRESHOLD_MS } from "@/lib/task-metrics";
 import { SubmitButton } from "../submit-button";
 
 export type TaskWithAgent = Task & { agent?: Pick<Agent, "id" | "name"> | null };
@@ -17,8 +18,6 @@ const STATUS_BADGES: Record<TaskStatus, string> = {
   DOING: "bg-amber-500/20 text-amber-100",
   DONE: "bg-emerald-500/20 text-emerald-100"
 };
-
-const STALE_THRESHOLD_MS = 1000 * 60 * 60 * 48; // 48 hours
 
 export function TaskList({ tasks, agents = [], isFiltered = false }: TaskListProps) {
   if (!tasks.length) {

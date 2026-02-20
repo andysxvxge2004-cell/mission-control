@@ -10,6 +10,7 @@ import { AuditLogList } from "@/components/audit/audit-log";
 import { AgentPerformanceRollup } from "@/components/agents/agent-performance-rollup";
 import { ensureCoreAgents } from "@/lib/core-agents";
 import { TASK_STATUSES, type TaskStatus } from "@/lib/constants";
+import { getStaleCutoffDate } from "@/lib/task-metrics";
 
 export const dynamic = "force-dynamic";
 
@@ -40,7 +41,7 @@ export default async function Home({ searchParams }: HomePageProps) {
   }
 
   const now = new Date();
-  const agingThreshold = new Date(now.getTime() - 1000 * 60 * 60 * 48);
+  const agingThreshold = getStaleCutoffDate(now.getTime());
 
   const [agents, filteredTasks, auditLogs, todoCount, doingCount, doneCount, agingTasks] = await Promise.all([
     prisma.agent.findMany({
@@ -83,6 +84,13 @@ export default async function Home({ searchParams }: HomePageProps) {
 
   const agentsForSelect = agents.map(({ id, name }) => ({ id, name }));
   const hasActiveFilters = Boolean(agentFilter || statusFilter);
+  const stuckCount = agingTasks.length;
+  const statCards = [
+    { label: "Agents", value: agents.length },
+    { label: "Tasks open", value: statusCounts.TODO + statusCounts.DOING },
+    { label: "Completed", value: statusCounts.DONE },
+    { label: "Stuck in Doing", value: stuckCount, highlight: stuckCount > 0 }
+  ];
 
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10">
@@ -105,21 +113,33 @@ export default async function Home({ searchParams }: HomePageProps) {
               View all agents
             </Link>
           </div>
-          <div className="mt-6 grid gap-4 md:grid-cols-3">
-            {["Agents", "Tasks open", "Completed"].map((label, index) => {
-              const value =
-                index === 0
-                  ? agents.length
-                  : index === 1
-                  ? statusCounts.TODO + statusCounts.DOING
-                  : statusCounts.DONE;
-              return (
-                <div key={label} className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                  <p className="text-xs uppercase tracking-wide text-white/60">{label}</p>
-                  <p className="mt-2 text-3xl font-semibold text-white">{value}</p>
-                </div>
-              );
-            })}
+          <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+            {statCards.map((stat) => (
+              <div
+                key={stat.label}
+                className={`rounded-2xl border p-4 ${
+                  stat.highlight ? "border-amber-300/60 bg-amber-400/10" : "border-white/10 bg-white/5"
+                }`}
+              >
+                <p
+                  className={`text-xs uppercase tracking-wide ${
+                    stat.highlight ? "text-amber-100" : "text-white/60"
+                  }`}
+                >
+                  {stat.label}
+                </p>
+                <p
+                  className={`mt-2 text-3xl font-semibold ${
+                    stat.highlight ? "text-amber-50" : "text-white"
+                  }`}
+                >
+                  {stat.value}
+                </p>
+                {stat.highlight ? (
+                  <p className="mt-1 text-[11px] uppercase tracking-wide text-amber-100/80">Needs attention</p>
+                ) : null}
+              </div>
+            ))}
           </div>
         </header>
 
@@ -149,6 +169,11 @@ export default async function Home({ searchParams }: HomePageProps) {
           </div>
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-white">Execution queue</h2>
+            {stuckCount > 0 ? (
+              <div className="rounded-2xl border border-amber-400/40 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
+                {stuckCount} task{stuckCount === 1 ? "" : "s"} have been in Doing for 48h+.
+              </div>
+            ) : null}
             <TaskFilters
               agents={agentsForSelect}
               currentAgentId={agentFilter}
