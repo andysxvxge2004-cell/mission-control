@@ -5,7 +5,7 @@ import { TaskForm } from "@/components/tasks/task-form";
 import { TaskList } from "@/components/tasks/task-list";
 import { TaskFilters } from "@/components/tasks/task-filters";
 import { TaskAgingAlerts } from "@/components/tasks/task-aging-alerts";
-import { AuditLogList } from "@/components/audit/audit-log";
+import { AuditLogPanel } from "@/components/audit/audit-log-panel";
 import { AgentPerformanceRollup } from "@/components/agents/agent-performance-rollup";
 import { AgentsNeedingMemory } from "@/components/agents/agents-needing-memory";
 import { AgentsSearch } from "@/components/agents/agents-search";
@@ -235,13 +235,7 @@ export default async function MissionControlPage({ searchParams }: MissionContro
           </div>
         </section>
 
-        <section className="space-y-4">
-          <div className="flex items-center justify-between">
-            <h2 className="text-xl font-semibold text-white">Audit log</h2>
-            <span className="text-xs uppercase tracking-wide text-white/50">Last 20 events</span>
-          </div>
-          <AuditLogList logs={auditLogs} />
-        </section>
+        <AuditLogPanel logs={auditLogs} />
       </div>
   );
 }

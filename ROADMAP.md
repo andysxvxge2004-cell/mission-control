@@ -16,6 +16,7 @@ This roadmap tracks the near-term features required to make Mission Control a re
 - [x] Task SLA tracking with per-priority thresholds and warning badges (shipped in 0.1.25)
 - [x] Slack notification hook for overdue tasks (shipped in 0.1.26)
 - [x] Escalation playbook filters + search controls so operators can zero in on the right response quickly (shipped in 0.1.29)
+- [x] Audit log filters + search controls for faster forensic triage (shipped in 0.1.30)
 
 ## Later
 - [x] Smart agent recommendations based on backlog composition (suggest who to staff next) (shipped in 0.1.27)
