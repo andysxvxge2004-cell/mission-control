@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.2] - 2026-02-19
+- Allow reassignment of tasks from any lane with inline agent pickers and combined status/owner updates
+
 ## [0.1.1] - 2026-02-19
 - Group task queue by status lanes with per-lane counts and styling for faster triage
 

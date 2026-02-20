@@ -94,7 +94,7 @@ export default async function Home() {
           </div>
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-white">Execution queue</h2>
-            <TaskList tasks={tasks} />
+            <TaskList tasks={tasks} agents={agents.map(({ id, name }) => ({ id, name }))} />
           </div>
         </section>
 

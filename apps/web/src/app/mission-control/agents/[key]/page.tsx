@@ -28,11 +28,17 @@ export default async function AgentDetailPage({ params }: AgentDetailParams) {
     notFound();
   }
 
-  const tasks = await prisma.task.findMany({
-    where: { agentId: agent.id },
-    orderBy: { createdAt: "desc" },
-    include: { agent: { select: { id: true, name: true } } }
-  });
+  const [tasks, roster] = await Promise.all([
+    prisma.task.findMany({
+      where: { agentId: agent.id },
+      orderBy: { createdAt: "desc" },
+      include: { agent: { select: { id: true, name: true } } }
+    }),
+    prisma.agent.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true }
+    })
+  ]);
 
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10 text-white">
@@ -83,7 +89,7 @@ export default async function AgentDetailPage({ params }: AgentDetailParams) {
             <h2 className="text-lg font-semibold text-white">Assigned tasks</h2>
             <span className="text-xs uppercase tracking-wide text-white/50">{tasks.length} open</span>
           </div>
-          <TaskList tasks={tasks} />
+          <TaskList tasks={tasks} agents={roster} />
         </section>
       </div>
     </main>

@@ -13,7 +13,11 @@ const taskSchema = z.object({
 
 const updateTaskSchema = z.object({
   taskId: z.string().min(1),
-  status: z.enum(["TODO", "DOING", "DONE"])
+  status: z.enum(["TODO", "DOING", "DONE"]),
+  agentId: z.preprocess(
+    (value) => (typeof value === "string" && value.length === 0 ? undefined : value),
+    z.string().trim().min(1).optional()
+  )
 });
 
 const agentSchema = z.object({
@@ -76,24 +80,28 @@ export async function createTask(_: unknown, formData: FormData) {
   return { success: true };
 }
 
-export async function updateTaskStatus(_: unknown, formData: FormData) {
+export async function updateTask(_: unknown, formData: FormData) {
   const result = updateTaskSchema.safeParse({
     taskId: formData.get("taskId"),
-    status: formData.get("status")
+    status: formData.get("status"),
+    agentId: formData.get("agentId") ?? undefined
   });
 
   if (!result.success) {
     return { error: result.error.errors[0]?.message ?? "Invalid input" };
   }
 
-  const { taskId, status } = result.data;
+  const { taskId, status, agentId } = result.data;
 
   const task = await prisma.task.update({
     where: { id: taskId },
-    data: { status }
+    data: {
+      status,
+      agentId: agentId ?? null
+    }
   });
 
-  await writeAuditLog("task.status_updated", { taskId, status });
+  await writeAuditLog("task.updated", { taskId, status, agentId: agentId ?? null });
 
   revalidateDash(task.agentId);
 
