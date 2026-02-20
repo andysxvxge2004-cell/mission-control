@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.23] - 2026-02-20
+- Allow saving, applying, and deleting named Task Aging Alert presets (agent/sort/pinned view) persisted in local storage
+
 ## [0.1.24] - 2026-02-20
 - Ship weekly digest export that generates an email-ready summary (agent load lanes + stuck tasks) and surface the download control in Mission Control
 
