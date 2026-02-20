@@ -1,6 +1,6 @@
 import { createTask } from "@/app/actions";
 import type { Agent } from "@mission-control/db";
-import { TASK_STATUSES } from "@/lib/constants";
+import { TASK_PRIORITIES, TASK_STATUSES } from "@/lib/constants";
 import { SubmitButton } from "../submit-button";
 
 export function TaskForm({ agents }: { agents: Pick<Agent, "id" | "name">[] }) {
@@ -24,8 +24,8 @@ export function TaskForm({ agents }: { agents: Pick<Agent, "id" | "name">[] }) {
           placeholder="Context, constraints, done definition"
         />
       </div>
-      <div className="grid gap-3 md:grid-cols-2">
-        <div>
+      <div className="grid gap-3 md:grid-cols-3">
+        <div className="md:col-span-1">
           <label className="text-xs font-semibold uppercase tracking-wide text-white/60">Assign agent</label>
           <select
             name="agentId"
@@ -50,6 +50,20 @@ export function TaskForm({ agents }: { agents: Pick<Agent, "id" | "name">[] }) {
             {TASK_STATUSES.map((status) => (
               <option key={status.id} value={status.id}>
                 {status.label}
+              </option>
+            ))}
+          </select>
+        </div>
+        <div>
+          <label className="text-xs font-semibold uppercase tracking-wide text-white/60">Priority</label>
+          <select
+            name="priority"
+            className="mt-1 w-full rounded-md border border-white/20 bg-black/40 px-3 py-2 text-sm text-white focus:border-indigo-400 focus:outline-none"
+            defaultValue="MEDIUM"
+          >
+            {TASK_PRIORITIES.map((priority) => (
+              <option key={priority.id} value={priority.id}>
+                {priority.label}
               </option>
             ))}
           </select>

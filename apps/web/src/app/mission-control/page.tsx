@@ -9,7 +9,7 @@ import { AuditLogList } from "@/components/audit/audit-log";
 import { AgentPerformanceRollup } from "@/components/agents/agent-performance-rollup";
 import { AgentsNeedingMemory } from "@/components/agents/agents-needing-memory";
 import { ensureCoreAgents } from "@/lib/core-agents";
-import { TASK_STATUSES, type TaskStatus } from "@/lib/constants";
+import { TASK_PRIORITIES, TASK_STATUSES, type TaskPriority, type TaskStatus } from "@/lib/constants";
 import { getStaleCutoffDate } from "@/lib/task-metrics";
 
 export const dynamic = "force-dynamic";
@@ -18,6 +18,7 @@ interface MissionControlPageProps {
   searchParams?: {
     agent?: string;
     status?: string;
+    priority?: string;
   };
 }
 
@@ -26,11 +27,17 @@ function parseStatus(value?: string): TaskStatus | undefined {
   return (TASK_STATUSES.find((status) => status.id === value)?.id as TaskStatus | undefined) ?? undefined;
 }
 
+function parsePriority(value?: string): TaskPriority | undefined {
+  if (!value) return undefined;
+  return (TASK_PRIORITIES.find((priority) => priority.id === value)?.id as TaskPriority | undefined) ?? undefined;
+}
+
 export default async function MissionControlPage({ searchParams }: MissionControlPageProps) {
   await ensureCoreAgents();
 
   const agentFilter = typeof searchParams?.agent === "string" && searchParams.agent.length > 0 ? searchParams.agent : undefined;
   const statusFilter = parseStatus(typeof searchParams?.status === "string" ? searchParams.status : undefined);
+  const priorityFilter = parsePriority(typeof searchParams?.priority === "string" ? searchParams.priority : undefined);
 
   const taskWhere: Prisma.TaskWhereInput = {};
   if (agentFilter) {
@@ -38,6 +45,9 @@ export default async function MissionControlPage({ searchParams }: MissionContro
   }
   if (statusFilter) {
     taskWhere.status = statusFilter;
+  }
+  if (priorityFilter) {
+    taskWhere.priority = priorityFilter;
   }
 
   const now = new Date();
@@ -81,7 +91,7 @@ export default async function MissionControlPage({ searchParams }: MissionContro
   ]);
 
   const agentsForSelect = agents.map(({ id, name }) => ({ id, name }));
-  const hasActiveFilters = Boolean(agentFilter || statusFilter);
+  const hasActiveFilters = Boolean(agentFilter || statusFilter || priorityFilter);
   const stuckCount = agingTasks.length;
 
   return (
@@ -123,6 +133,7 @@ export default async function MissionControlPage({ searchParams }: MissionContro
               agents={agentsForSelect}
               currentAgentId={agentFilter}
               currentStatus={statusFilter}
+              currentPriority={priorityFilter}
               basePath="/mission-control"
             />
             <TaskList tasks={filteredTasks} agents={agentsForSelect} isFiltered={hasActiveFilters} />

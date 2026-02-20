@@ -1,6 +1,6 @@
 import { updateTask } from "@/app/actions";
 import type { Task, Agent, AuditLog } from "@mission-control/db";
-import { TASK_STATUSES, type TaskStatus } from "@/lib/constants";
+import { TASK_PRIORITIES, TASK_STATUSES, type TaskPriority, type TaskStatus } from "@/lib/constants";
 import { formatDateTime } from "@/lib/formatters";
 import { STALE_THRESHOLD_MS } from "@/lib/task-metrics";
 import { SubmitButton } from "../submit-button";
@@ -21,6 +21,17 @@ const STATUS_BADGES: Record<TaskStatus, string> = {
   DOING: "bg-amber-500/20 text-amber-100",
   DONE: "bg-emerald-500/20 text-emerald-100"
 };
+
+const PRIORITY_BADGES: Record<TaskPriority, string> = {
+  LOW: "bg-slate-500/20 text-slate-100",
+  MEDIUM: "bg-cyan-500/20 text-cyan-100",
+  HIGH: "bg-rose-600/20 text-rose-50"
+};
+
+const PRIORITY_LABELS = TASK_PRIORITIES.reduce<Record<string, string>>((acc, priority) => {
+  acc[priority.id] = priority.label;
+  return acc;
+}, {});
 
 export function TaskList({ tasks, agents = [], isFiltered = false }: TaskListProps) {
   if (!tasks.length) {
@@ -43,7 +54,9 @@ export function TaskList({ tasks, agents = [], isFiltered = false }: TaskListPro
           <header className="flex items-center justify-between">
             <div>
               <p className="text-xs uppercase tracking-wide text-white/60">{lane.label}</p>
-              <p className="text-sm text-white/70">{lane.tasks.length} task{lane.tasks.length === 1 ? "" : "s"}</p>
+              <p className="text-sm text-white/70">
+                {lane.tasks.length} task{lane.tasks.length === 1 ? "" : "s"}
+              </p>
             </div>
             <span
               className={`rounded-full px-3 py-1 text-xs font-semibold ${STATUS_BADGES[lane.id as TaskStatus]}`}
@@ -67,6 +80,7 @@ export function TaskList({ tasks, agents = [], isFiltered = false }: TaskListPro
 
 function TaskCard({ task, agents }: { task: TaskWithAgent; agents: Pick<Agent, "id" | "name">[] }) {
   const staleness = getTaskStaleness(task);
+  const priority = (task.priority as TaskPriority) ?? "MEDIUM";
 
   return (
     <article
@@ -77,7 +91,12 @@ function TaskCard({ task, agents }: { task: TaskWithAgent; agents: Pick<Agent, "
           <p className="text-xs uppercase tracking-wide text-indigo-300">{task.agent?.name ?? "Unassigned"}</p>
           <h4 className="text-lg font-semibold text-white">{task.title}</h4>
         </div>
-        <span className="rounded-full bg-white/5 px-3 py-1 text-xs font-semibold text-white/70">{task.status}</span>
+        <div className="flex flex-col items-end gap-2 text-xs font-semibold">
+          <span className="rounded-full bg-white/5 px-3 py-1 text-white/70">{task.status}</span>
+          <span className={`rounded-full px-3 py-1 ${PRIORITY_BADGES[priority]}`}>
+            {PRIORITY_LABELS[priority] ?? priority}
+          </span>
+        </div>
       </div>
       {task.description ? <p className="mt-2 text-sm text-white/70">{task.description}</p> : null}
       <p className="mt-2 text-[11px] uppercase tracking-wide text-white/50">Opened {formatDateTime(task.createdAt)}</p>
@@ -113,6 +132,17 @@ function TaskCard({ task, agents }: { task: TaskWithAgent; agents: Pick<Agent, "
           {TASK_STATUSES.map((status) => (
             <option key={status.id} value={status.id}>
               {status.label}
+            </option>
+          ))}
+        </select>
+        <select
+          name="priority"
+          defaultValue={priority}
+          className="rounded-md border border-white/20 bg-black/40 px-3 py-2 text-sm text-white focus:border-cyan-400 focus:outline-none"
+        >
+          {TASK_PRIORITIES.map((priorityOption) => (
+            <option key={priorityOption.id} value={priorityOption.id}>
+              {priorityOption.label}
             </option>
           ))}
         </select>

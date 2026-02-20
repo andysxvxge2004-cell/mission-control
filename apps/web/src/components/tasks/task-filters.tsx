@@ -1,19 +1,23 @@
 import Link from "next/link";
 import type { Agent } from "@mission-control/db";
-import { TASK_STATUSES } from "@/lib/constants";
+import { TASK_PRIORITIES, TASK_STATUSES } from "@/lib/constants";
 
 interface TaskFiltersProps {
   agents: Pick<Agent, "id" | "name">[];
   currentAgentId?: string;
   currentStatus?: string;
+  currentPriority?: string;
   basePath: string;
 }
 
-export function TaskFilters({ agents, currentAgentId, currentStatus, basePath }: TaskFiltersProps) {
-  const hasFilters = Boolean(currentAgentId || currentStatus);
+export function TaskFilters({ agents, currentAgentId, currentStatus, currentPriority, basePath }: TaskFiltersProps) {
+  const hasFilters = Boolean(currentAgentId || currentStatus || currentPriority);
   const agentLabel = currentAgentId ? agents.find((agent) => agent.id === currentAgentId)?.name ?? "Selected agent" : null;
   const statusLabel = currentStatus
     ? TASK_STATUSES.find((status) => status.id === currentStatus)?.label ?? "Selected status"
+    : null;
+  const priorityLabel = currentPriority
+    ? TASK_PRIORITIES.find((priority) => priority.id === currentPriority)?.label ?? "Selected priority"
     : null;
 
   return (
@@ -22,7 +26,7 @@ export function TaskFilters({ agents, currentAgentId, currentStatus, basePath }:
       action={basePath}
       className="space-y-3 rounded-2xl border border-white/10 bg-black/30 p-4"
     >
-      <div className="grid gap-3 md:grid-cols-3">
+      <div className="grid gap-3 md:grid-cols-4">
         <label className="text-xs font-semibold uppercase tracking-wide text-white/60">
           Agent
           <select
@@ -53,6 +57,21 @@ export function TaskFilters({ agents, currentAgentId, currentStatus, basePath }:
             ))}
           </select>
         </label>
+        <label className="text-xs font-semibold uppercase tracking-wide text-white/60">
+          Priority
+          <select
+            name="priority"
+            defaultValue={currentPriority ?? ""}
+            className="mt-1 w-full rounded-md border border-white/20 bg-black/40 px-3 py-2 text-sm text-white focus:border-cyan-400 focus:outline-none"
+          >
+            <option value="">All priorities</option>
+            {TASK_PRIORITIES.map((priority) => (
+              <option key={priority.id} value={priority.id}>
+                {priority.label}
+              </option>
+            ))}
+          </select>
+        </label>
         <div className="flex flex-col gap-2 pt-4 md:pt-0">
           <button
             type="submit"
@@ -73,9 +92,10 @@ export function TaskFilters({ agents, currentAgentId, currentStatus, basePath }:
       {hasFilters ? (
         <p className="text-xs uppercase tracking-wide text-white/50">
           Filters active:
-          <span className="ml-1 inline-flex items-center space-x-3">
+          <span className="ml-1 inline-flex flex-wrap gap-3">
             {agentLabel ? <span>Agent · {agentLabel}</span> : null}
             {statusLabel ? <span>Status · {statusLabel}</span> : null}
+            {priorityLabel ? <span>Priority · {priorityLabel}</span> : null}
           </span>
         </p>
       ) : (

@@ -8,12 +8,14 @@ const taskSchema = z.object({
   title: z.string().min(1, "Title is required"),
   description: z.string().optional(),
   agentId: z.string().trim().min(1).optional(),
-  status: z.enum(["TODO", "DOING", "DONE"]).default("TODO")
+  status: z.enum(["TODO", "DOING", "DONE"]).default("TODO"),
+  priority: z.enum(["LOW", "MEDIUM", "HIGH"]).default("MEDIUM")
 });
 
 const updateTaskSchema = z.object({
   taskId: z.string().min(1),
   status: z.enum(["TODO", "DOING", "DONE"]),
+  priority: z.enum(["LOW", "MEDIUM", "HIGH"]),
   agentId: z.preprocess(
     (value) => (typeof value === "string" && value.length === 0 ? undefined : value),
     z.string().trim().min(1).optional()
@@ -55,25 +57,27 @@ export async function createTask(_: unknown, formData: FormData) {
     title: formData.get("title"),
     description: formData.get("description") ?? undefined,
     agentId: formData.get("agentId") ?? undefined,
-    status: formData.get("status") ?? "TODO"
+    status: formData.get("status") ?? "TODO",
+    priority: formData.get("priority") ?? "MEDIUM"
   });
 
   if (!result.success) {
     return { error: result.error.errors[0]?.message ?? "Invalid input" };
   }
 
-  const { title, description, agentId, status } = result.data;
+  const { title, description, agentId, status, priority } = result.data;
 
   const task = await prisma.task.create({
     data: {
       title,
       description,
       status,
+      priority,
       agentId: agentId || undefined
     }
   });
 
-  await writeAuditLog("task.created", { taskId: task.id, status });
+  await writeAuditLog("task.created", { taskId: task.id, status, priority });
 
   revalidateDash(agentId ?? null);
 
@@ -84,6 +88,7 @@ export async function updateTask(_: unknown, formData: FormData) {
   const result = updateTaskSchema.safeParse({
     taskId: formData.get("taskId"),
     status: formData.get("status"),
+    priority: formData.get("priority"),
     agentId: formData.get("agentId") ?? undefined
   });
 
@@ -91,17 +96,18 @@ export async function updateTask(_: unknown, formData: FormData) {
     return { error: result.error.errors[0]?.message ?? "Invalid input" };
   }
 
-  const { taskId, status, agentId } = result.data;
+  const { taskId, status, priority, agentId } = result.data;
 
   const task = await prisma.task.update({
     where: { id: taskId },
     data: {
       status,
+      priority,
       agentId: agentId ?? null
     }
   });
 
-  await writeAuditLog("task.updated", { taskId, status, agentId: agentId ?? null });
+  await writeAuditLog("task.updated", { taskId, status, priority, agentId: agentId ?? null });
 
   revalidateDash(task.agentId);
 

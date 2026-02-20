@@ -31,6 +31,7 @@ model Task {
   title       String
   description String?
   status      String   @default("TODO")
+  priority    String   @default("MEDIUM")
   agent       Agent?   @relation(fields: [agentId], references: [id])
   agentId     String?
   createdAt   DateTime @default(now())
