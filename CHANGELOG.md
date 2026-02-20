@@ -1,6 +1,10 @@
 # Changelog
 
 ## [0.1.8] - 2026-02-19
+- Highlight unbriefed agents with dashboard KPIs, warning banners, and roster badges so ops fills memory gaps before dispatching work
+- Add inline "Needs briefing" pills on agent cards plus aggregated counts in Mission Control and the home dashboard
+
+## [0.1.8] - 2026-02-19
 - Add workspace memory alerts that list every agent lacking documented memories, with quick links to append updates
 - Display the reminders across both dashboards so leads get nudged before staffing an unbriefed operator
 

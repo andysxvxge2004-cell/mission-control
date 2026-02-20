@@ -32,6 +32,7 @@ export function AgentsList({ agents, hrefPrefix = "/agents" }: AgentsListProps) 
     <div className="grid gap-4 md:grid-cols-2">
       {agents.map((agent) => {
         const latestMemory = agent.memories[0];
+        const needsBriefing = agent.memories.length === 0;
         const workload = agent.tasks.reduce<Record<TaskStatus, number>>(
           (acc, task) => {
             if (isKnownStatus(task.status)) {
@@ -52,7 +53,14 @@ export function AgentsList({ agents, hrefPrefix = "/agents" }: AgentsListProps) 
             <div className="flex items-center justify-between">
               <div>
                 <p className="text-sm uppercase tracking-wide text-indigo-300">{agent.role}</p>
-                <h3 className="text-lg font-semibold text-white">{agent.name}</h3>
+                <div className="flex items-center gap-2">
+                  <h3 className="text-lg font-semibold text-white">{agent.name}</h3>
+                  {needsBriefing ? (
+                    <span className="rounded-full bg-amber-400/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-100">
+                      Needs briefing
+                    </span>
+                  ) : null}
+                </div>
               </div>
               <div className="text-right text-xs text-white/60">
                 <p>{agent.tasks.length} tasks</p>

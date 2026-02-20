@@ -98,7 +98,8 @@ export default async function Home({ searchParams }: HomePageProps) {
     { label: "Agents", value: agents.length },
     { label: "Tasks open", value: statusCounts.TODO + statusCounts.DOING },
     { label: "Completed", value: statusCounts.DONE },
-    { label: "Stuck in Doing", value: stuckCount, highlight: stuckCount > 0 }
+    { label: "Stuck in Doing", value: stuckCount, highlight: stuckCount > 0 },
+    { label: "Unbriefed agents", value: agentsMissingMemories.length, highlight: agentsMissingMemories.length > 0 }
   ];
 
   return (
@@ -122,7 +123,7 @@ export default async function Home({ searchParams }: HomePageProps) {
               View all agents
             </Link>
           </div>
-          <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-4">
+          <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
             {statCards.map((stat) => (
               <div
                 key={stat.label}
@@ -153,7 +154,7 @@ export default async function Home({ searchParams }: HomePageProps) {
         </header>
 
         {agentsMissingMemories.length ? (
-          <AgentsNeedingMemory agents={agents} />
+          <AgentsNeedingMemory agents={agentsMissingMemories} />
         ) : null}
 
         <section className="grid gap-6 lg:grid-cols-3">
