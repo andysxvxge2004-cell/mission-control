@@ -67,6 +67,7 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
     }
   });
   const [presetName, setPresetName] = useState('');
+  const [editingPresetId, setEditingPresetId] = useState<string | null>(null);
 
   useEffect(() => {
     if (typeof window === 'undefined') return;
@@ -215,15 +216,16 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
     const name = presetName.trim();
     if (!name) return;
     const preset: SavedPreset = {
-      id: name,
+      id: editingPresetId ?? name,
       name,
       agent: agentFilter,
       sort: sortOrder,
       pinned: Array.from(pinnedAgents),
       pinnedOnly: showPinnedOnly
     };
-    setPresets((prev) => [preset, ...prev.filter((entry) => entry.name !== name)]);
+    setPresets((prev) => [preset, ...prev.filter((entry) => entry.id !== preset.id)]);
     setPresetName('');
+    setEditingPresetId(null);
   };
 
   const handleApplyPreset = (preset: SavedPreset) => {
@@ -232,6 +234,15 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
 
   const handleDeletePreset = (id: string) => {
     setPresets((prev) => prev.filter((preset) => preset.id !== id));
+    if (editingPresetId === id) {
+      setEditingPresetId(null);
+      setPresetName('');
+    }
+  };
+
+  const handleRenamePreset = (preset: SavedPreset) => {
+    setEditingPresetId(preset.id);
+    setPresetName(preset.name);
   };
 
   const quickFilters = useMemo<QuickFilter[]>(() => {
@@ -365,7 +376,7 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
               onClick={handleSavePreset}
               disabled={!presetName.trim()}
             >
-              Save view
+              {editingPresetId ? 'Update view' : 'Save view'}
             </button>
           </div>
           {presets.length ? (
@@ -378,6 +389,14 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
                     onClick={() => handleApplyPreset(preset)}
                   >
                     {preset.name}
+                  </button>
+                  <button
+                    type="button"
+                    className="text-white/50 hover:text-amber-200"
+                    aria-label={`Rename ${preset.name}`}
+                    onClick={() => handleRenamePreset(preset)}
+                  >
+                    ✎
                   </button>
                   <button
                     type="button"
