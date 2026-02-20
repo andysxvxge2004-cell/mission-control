@@ -18,6 +18,8 @@ const STATUS_BADGES: Record<TaskStatus, string> = {
   DONE: "bg-emerald-500/20 text-emerald-100"
 };
 
+const STALE_THRESHOLD_MS = 1000 * 60 * 60 * 48; // 48 hours
+
 export function TaskList({ tasks, agents = [], isFiltered = false }: TaskListProps) {
   if (!tasks.length) {
     return (
@@ -62,8 +64,12 @@ export function TaskList({ tasks, agents = [], isFiltered = false }: TaskListPro
 }
 
 function TaskCard({ task, agents }: { task: TaskWithAgent; agents: Pick<Agent, "id" | "name">[] }) {
+  const staleness = getTaskStaleness(task);
+
   return (
-    <article className="rounded-xl border border-white/10 bg-black/40 p-4">
+    <article
+      className={`rounded-xl border ${staleness.isStale ? "border-amber-400/70 bg-amber-500/5" : "border-white/10 bg-black/40"} p-4`}
+    >
       <div className="flex flex-wrap items-center justify-between gap-3">
         <div>
           <p className="text-xs uppercase tracking-wide text-indigo-300">{task.agent?.name ?? "Unassigned"}</p>
@@ -73,6 +79,12 @@ function TaskCard({ task, agents }: { task: TaskWithAgent; agents: Pick<Agent, "
       </div>
       {task.description ? <p className="mt-2 text-sm text-white/70">{task.description}</p> : null}
       <p className="mt-2 text-[11px] uppercase tracking-wide text-white/50">Opened {formatDateTime(task.createdAt)}</p>
+      {staleness.isStale ? (
+        <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100">
+          <span className="rounded-full bg-amber-500/30 px-2 py-1 text-[10px] uppercase tracking-wide">Stuck</span>
+          <span>Last movement {staleness.lastMovedLabel} ago</span>
+        </div>
+      ) : null}
       <form action={updateTask} className="mt-3 flex flex-wrap items-center gap-2">
         <input type="hidden" name="taskId" value={task.id} />
         <select
@@ -102,4 +114,27 @@ function TaskCard({ task, agents }: { task: TaskWithAgent; agents: Pick<Agent, "
       </form>
     </article>
   );
+}
+
+function getTaskStaleness(task: TaskWithAgent) {
+  const lastUpdate = task.updatedAt ?? task.createdAt;
+  const timeSinceUpdate = Date.now() - new Date(lastUpdate).getTime();
+  const isStale = task.status === "DOING" && timeSinceUpdate > STALE_THRESHOLD_MS;
+
+  return {
+    isStale,
+    lastMovedLabel: formatDuration(timeSinceUpdate)
+  };
+}
+
+function formatDuration(durationMs: number) {
+  const totalHours = Math.floor(durationMs / (1000 * 60 * 60));
+  const days = Math.floor(totalHours / 24);
+  const hours = totalHours % 24;
+
+  if (days > 0) {
+    return `${days}d${hours ? ` ${hours}h` : ""}`;
+  }
+
+  return `${Math.max(hours, 1)}h`;
 }

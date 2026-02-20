@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.5] - 2026-02-19
+- Flag DOING tasks that have been idle for more than 48 hours with "Stuck" badges, warning styling, and last-movement timestamps
+- Improve TaskList empty states so filtered views explain when no results match
+
 ## [0.1.4] - 2026-02-19
 - Surface per-agent workload badges on roster cards to show TODO/DOING/DONE counts at a glance
 
