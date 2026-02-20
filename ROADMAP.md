@@ -12,10 +12,10 @@ This roadmap tracks the near-term features required to make Mission Control a re
 - [x] Agent search + quick-jump to dossiers directly from the roster (shipped in 0.1.17)
 - [x] Grouped Kanban lanes for agent cards (Idle, Engaged, Overloaded) with capacity hints (shipped in 0.1.18)
 - [x] Export daily command snapshot (agents, tasks, audits) to markdown for async reporting (shipped in 0.1.22)
-- [x] Weekly digest email summarizing agent load + stuck tasks (shipped in 0.1.23)
-- [ ] Task SLA tracking with per-priority thresholds and warning badges
+- [x] Weekly digest email summarizing agent load + stuck tasks (shipped in 0.1.24)
+- [x] Task SLA tracking with per-priority thresholds and warning badges (shipped in 0.1.25)
+- [ ] Slack notification hook for overdue tasks
 
 ## Later
-- [x] Timeline overlays that correlate audit log activity with task changes (shipped in 0.1.7)
-- [x] Workspace notifications that nudge when new agents are added without souls/memories (shipped in 0.1.9)
-- [ ] Slack notification hook for overdue tasks
+- [ ] Smart agent recommendations based on backlog composition (suggest who to staff next)
+- [ ] Escalation playbooks library with templated response steps

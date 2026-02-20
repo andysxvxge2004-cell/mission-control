@@ -42,4 +42,10 @@
 - 2026-02-20 02:13 MST | [IMPORTANT] | reminder | Snapshot export feature ready (v0.1.22). Files: none. Verify: n/a. Next: continue V1 checklist.
 - 2026-02-20 02:20 MST | [INFO] | no commit | Roadmap loop idle; no new work. Files: none. Verify: nothing. Next: continue manual Mission Control V1 tasks.
 - 2026-02-20 02:43 MST | [IMPORTANT] | 0.1.23 | Shared Mission Control shell + new Tasks/Intelligence/Files routes. Files: mission-control layout/nav/shell data, new route directories. Verify: pnpm -C apps/web lint & browse /mission-control tabs. Next: continue Phase 2 checklist (roster polish, intelligence modules, files cleanup).
+- 2026-02-20 02:50 MST | [INFO] | roadmap | Added backlog items: weekly digest email (agent load + stuck tasks) and priority-based SLA tracking.
+- 2026-02-20 03:16 MST | [IMPORTANT] | v0.1.24 | Aging alert presets + pinned-only enhancements. Files: task-aging components. Verify: pnpm -C apps/web lint & test preset save/share. Next: continue V1 tasks.
+- 2026-02-20 03:16 MST | [INFO] | road
+- 2026-02-20 03:30 MST | [INFO] | roadmap | Roadmap loop idle; no tasks executed.
+- 2026-02-20 03:40 MST | [INFO] | roadmap | Added targets: task SLA tracking + Slack notification hook.
+- 2026-02-20 03:45 MST | [IMPORTANT] | v0.1.25 | Priority-based SLA tracking shipped: task cards show warning/overdue badges, dashboard surfaces SLA breach counts. Files: constants, task metrics helper, task list, mission-control + home pages, ROADMAP.md, CHANGELOG.md. Verify: open Mission Control execution queue and observe SLA alerts plus per-task badges. Next: wire Slack overdue hook.
 

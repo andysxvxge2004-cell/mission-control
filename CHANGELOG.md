@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.25] - 2026-02-20
+- Implement per-priority SLA tracking with warning/overdue badges on every task card plus dashboard alerts summarizing breaches
+- Surface SLA breach and warning counts above the execution queue so dispatchers can react before tasks miss their windows
+
 ## [0.1.23] - 2026-02-20
 - Allow saving, applying, and deleting named Task Aging Alert presets (agent/sort/pinned view) persisted in local storage
 

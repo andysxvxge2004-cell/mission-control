@@ -2,7 +2,7 @@ import { updateTask } from "@/app/actions";
 import type { Task, Agent, AuditLog } from "@mission-control/db";
 import { TASK_PRIORITIES, TASK_STATUSES, type TaskPriority, type TaskStatus } from "@/lib/constants";
 import { formatDateTime } from "@/lib/formatters";
-import { STALE_THRESHOLD_MS } from "@/lib/task-metrics";
+import { STALE_THRESHOLD_MS, evaluateTaskSla } from "@/lib/task-metrics";
 import { SubmitButton } from "../submit-button";
 
 export type TaskWithAgent = Task & {
@@ -81,6 +81,7 @@ export function TaskList({ tasks, agents = [], isFiltered = false }: TaskListPro
 function TaskCard({ task, agents }: { task: TaskWithAgent; agents: Pick<Agent, "id" | "name">[] }) {
   const staleness = getTaskStaleness(task);
   const priority = (task.priority as TaskPriority) ?? "MEDIUM";
+  const sla = evaluateTaskSla(priority, task.status, task.createdAt);
 
   return (
     <article
@@ -120,6 +121,20 @@ function TaskCard({ task, agents }: { task: TaskWithAgent; agents: Pick<Agent, "
         <div className="mt-2 flex flex-wrap items-center gap-2 rounded-lg bg-amber-500/10 px-3 py-2 text-xs font-semibold text-amber-100">
           <span className="rounded-full bg-amber-500/30 px-2 py-1 text-[10px] uppercase tracking-wide">Stuck</span>
           <span>Last movement {staleness.lastMovedLabel} ago</span>
+        </div>
+      ) : null}
+      {task.status !== "DONE" && sla.state !== "OK" ? (
+        <div
+          className={`mt-2 flex flex-wrap items-center gap-2 rounded-lg px-3 py-2 text-xs font-semibold ${
+            sla.state === "BREACH" ? "bg-rose-500/15 text-rose-100" : "bg-amber-400/15 text-amber-100"
+          }`}
+        >
+          <span className="rounded-full bg-black/20 px-2 py-1 text-[10px] uppercase tracking-wide">SLA</span>
+          <span>
+            {sla.state === "BREACH"
+              ? `Overdue by ${Math.max(1, Math.round(sla.hoursOverdue))}h`
+              : `Due in ${Math.max(1, Math.round(sla.hoursRemaining))}h`}
+          </span>
         </div>
       ) : null}
       <form action={updateTask} className="mt-3 flex flex-wrap items-center gap-2">

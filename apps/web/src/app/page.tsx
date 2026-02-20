@@ -12,7 +12,7 @@ import { AgentsSearch } from "@/components/agents/agents-search";
 import { AgentsNeedingMemory } from "@/components/agents/agents-needing-memory";
 import { ensureCoreAgents } from "@/lib/core-agents";
 import { TASK_PRIORITIES, TASK_STATUSES, type TaskPriority, type TaskStatus } from "@/lib/constants";
-import { getStaleCutoffDate } from "@/lib/task-metrics";
+import { evaluateTaskSla, getStaleCutoffDate } from "@/lib/task-metrics";
 
 export const dynamic = "force-dynamic";
 
@@ -111,6 +111,18 @@ export default async function Home({ searchParams }: HomePageProps) {
   const agentsMissingMemories = agents.filter((agent) => agent.memories.length === 0);
   const hasActiveFilters = Boolean(agentFilter || statusFilter || priorityFilter);
   const stuckCount = agingTasks.length;
+  const slaSummary = filteredTasks.reduce(
+    (acc, task) => {
+      const meta = evaluateTaskSla(task.priority as TaskPriority, task.status, task.createdAt, now);
+      if (meta.state === "BREACH") {
+        acc.breach += 1;
+      } else if (meta.state === "WARNING") {
+        acc.warning += 1;
+      }
+      return acc;
+    },
+    { breach: 0, warning: 0 }
+  );
   const statCards = [
     { label: "Agents", value: agents.length },
     { label: "Tasks open", value: statusCounts.TODO + statusCounts.DOING },
@@ -208,6 +220,17 @@ export default async function Home({ searchParams }: HomePageProps) {
             {stuckCount > 0 ? (
               <div className="rounded-2xl border border-amber-400/40 bg-amber-400/10 px-4 py-3 text-sm text-amber-100">
                 {stuckCount} task{stuckCount === 1 ? "" : "s"} have been in Doing for 48h+.
+              </div>
+            ) : null}
+            {slaSummary.breach > 0 ? (
+              <div className="rounded-2xl border border-rose-500/40 bg-rose-500/10 px-4 py-3 text-sm text-rose-100">
+                {slaSummary.breach} task{slaSummary.breach === 1 ? "" : "s"} breached SLA targets{
+                  slaSummary.warning > 0 ? ` and ${slaSummary.warning} due soon` : ""
+                }.
+              </div>
+            ) : slaSummary.warning > 0 ? (
+              <div className="rounded-2xl border border-amber-300/40 bg-amber-300/10 px-4 py-3 text-sm text-amber-100">
+                {slaSummary.warning} task{slaSummary.warning === 1 ? "" : "s"} approaching SLA limits.
               </div>
             ) : null}
             <TaskFilters

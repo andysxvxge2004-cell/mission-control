@@ -10,5 +10,11 @@ export const TASK_PRIORITIES = [
   { id: "HIGH", label: "High" }
 ] as const;
 
+export const TASK_PRIORITY_SLA_HOURS: Record<(typeof TASK_PRIORITIES)[number]["id"], number> = {
+  HIGH: 12,
+  MEDIUM: 48,
+  LOW: 120
+};
+
 export type TaskStatus = (typeof TASK_STATUSES)[number]["id"];
 export type TaskPriority = (typeof TASK_PRIORITIES)[number]["id"];
