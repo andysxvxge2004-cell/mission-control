@@ -7,8 +7,11 @@ import { TaskList } from "@/components/tasks/task-list";
 import { AuditLogList } from "@/components/audit/audit-log";
 import { ensureCoreAgents } from "@/lib/core-agents";
 
-export default async function Home() {
+export const dynamic = "force-dynamic";
+
+export default async function MissionControlPage() {
   await ensureCoreAgents();
+
   const [agents, tasks, auditLogs] = await Promise.all([
     prisma.agent.findMany({
       orderBy: { createdAt: "asc" },
@@ -46,17 +49,17 @@ export default async function Home() {
             <div>
               <p className="text-sm uppercase tracking-[0.3em] text-indigo-300">Mission Control</p>
               <h1 className="mt-4 text-3xl font-semibold leading-tight text-white md:text-4xl">
-                Staff, brief, and audit every AI operator from one command deck.
+                Internal AI office for TradeWise operations.
               </h1>
               <p className="mt-3 max-w-2xl text-white/70">
-                Spin up specialist agents, track their tasks, and keep a permanent memory trail.
+                Staff and audit every specialist agent from one command deck.
               </p>
             </div>
             <Link
-              href="/mission-control"
+              href="/"
               className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold tracking-wide text-white transition hover:border-indigo-300 hover:text-indigo-200"
             >
-              View all agents
+              TradeWise Dev Dashboard
             </Link>
           </div>
           <div className="mt-6 grid gap-4 md:grid-cols-3">
