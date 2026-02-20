@@ -17,5 +17,5 @@ This roadmap tracks the near-term features required to make Mission Control a re
 - [x] Slack notification hook for overdue tasks (shipped in 0.1.26)
 
 ## Later
-- [ ] Smart agent recommendations based on backlog composition (suggest who to staff next)
+- [x] Smart agent recommendations based on backlog composition (suggest who to staff next) (shipped in 0.1.27)
 - [ ] Escalation playbooks library with templated response steps

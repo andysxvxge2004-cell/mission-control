@@ -9,6 +9,7 @@ import { AuditLogList } from "@/components/audit/audit-log";
 import { AgentPerformanceRollup } from "@/components/agents/agent-performance-rollup";
 import { AgentsNeedingMemory } from "@/components/agents/agents-needing-memory";
 import { AgentsSearch } from "@/components/agents/agents-search";
+import { AgentRecommendations } from "@/components/agents/agent-recommendations";
 import { ensureCoreAgents } from "@/lib/core-agents";
 import { TASK_PRIORITIES, TASK_STATUSES, type TaskPriority, type TaskStatus } from "@/lib/constants";
 import { evaluateTaskSla, getStaleCutoffDate } from "@/lib/task-metrics";
@@ -56,7 +57,7 @@ export default async function MissionControlPage({ searchParams }: MissionContro
   const now = new Date();
   const agingThreshold = getStaleCutoffDate(now.getTime());
 
-  const [agents, filteredTasks, auditLogs, agingTasks] = await Promise.all([
+  const [agents, filteredTasks, auditLogs, agingTasks, unassignedTasks] = await Promise.all([
     prisma.agent.findMany({
       orderBy: { createdAt: "asc" },
       include: {
@@ -90,6 +91,13 @@ export default async function MissionControlPage({ searchParams }: MissionContro
       },
       orderBy: { updatedAt: "asc" },
       include: { agent: { select: { id: true, name: true } } }
+    }),
+    prisma.task.findMany({
+      where: {
+        status: { in: ["TODO", "DOING"] },
+        agentId: null
+      },
+      select: { id: true, priority: true }
     })
   ]);
 
@@ -99,6 +107,31 @@ export default async function MissionControlPage({ searchParams }: MissionContro
     : agents;
   const hasActiveFilters = Boolean(agentFilter || statusFilter || priorityFilter);
   const stuckCount = agingTasks.length;
+  const agentsWithWorkload = agents.map((agent) => {
+    const activeLoad = agent.tasks.filter((task) => task.status !== "DONE").length;
+    return { ...agent, activeLoad };
+  });
+
+  const recommendations = agentsWithWorkload
+    .filter(({ activeLoad }) => activeLoad <= 3)
+    .sort((a, b) => a.activeLoad - b.activeLoad || a.name.localeCompare(b.name))
+    .slice(0, 3)
+    .map((agent) => ({ id: agent.id, name: agent.name, role: agent.role, workload: agent.activeLoad }));
+
+  const backlogSummary = TASK_PRIORITIES.reduce(
+    (acc, priority) => {
+      acc.byPriority[priority.id] = 0;
+      return acc;
+    },
+    { total: 0, byPriority: {} as Record<TaskPriority, number> }
+  );
+
+  unassignedTasks.forEach((task) => {
+    const priority = parsePriority(task.priority) ?? "MEDIUM";
+    backlogSummary.byPriority[priority] = (backlogSummary.byPriority[priority] ?? 0) + 1;
+    backlogSummary.total += 1;
+  });
+
   const slaSummary = filteredTasks.reduce(
     (acc, task) => {
       const meta = evaluateTaskSla(task.priority as TaskPriority, task.status, task.createdAt, now);
@@ -123,6 +156,8 @@ export default async function MissionControlPage({ searchParams }: MissionContro
         matches={filteredAgents.map(({ id, name, role }) => ({ id, name, role }))}
         hiddenParams={{ agent: agentFilter ?? undefined, status: statusFilter ?? undefined, priority: priorityFilter ?? undefined }}
       />
+
+      <AgentRecommendations backlogSummary={backlogSummary} recommendations={recommendations} />
 
       <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-white/10 bg-white/5 p-4">
         <div>
