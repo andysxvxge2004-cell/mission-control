@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.22] - 2026-02-20
+- Added a 'Copy share link' action in Task Aging Alerts to grab the current filter (agent/sort/pinned) as a URL-ready link
+
 ## [0.1.23] - 2026-02-20
 - WHAT: Shared MissionControlShell layout now wraps every /mission-control route with top nav tabs (Dashboard / Agents / Tasks / Intelligence / Files) plus refreshed KPI strip and alert rail. WHY: Keeps navigation consistent as we expand the surface area so operators always know where they are. HOW: Added shell data loader, nav update, and layout wiring that highlight the current tab and feed lane-level counts.
 - WHAT: Added dedicated Tasks, Intelligence, and Files pages under Mission Control with filtered queues, aging alerts, audit trail, and dossier quick-jumps. WHY: Gives ops focused workspaces for triage, analytics, and file-like browsing without digging through the main dashboard. HOW: New route groups reuse the existing components with URL-driven filters and snapshot of agents/tasks/audits.

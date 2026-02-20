@@ -1,6 +1,6 @@
 'use client';
 
-import { useMemo } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { Agent, Task } from "@mission-control/db";
 import { formatDateTime, formatRelativeTime } from "@/lib/formatters";
@@ -35,9 +35,17 @@ type QuickFilter = {
 };
 
 export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) {
+  const [copied, setCopied] = useState(false);
+
   const router = useRouter();
   const searchParams = useSearchParams();
   const pathname = usePathname();
+
+  useEffect(() => {
+    if (!copied) return;
+    const timeout = setTimeout(() => setCopied(false), 2000);
+    return () => clearTimeout(timeout);
+  }, [copied]);
 
   const agentFilter = searchParams.get('agingAgent') ?? 'all';
   const sortOrder: SortOrder = searchParams.get('agingSort') === 'newest' ? 'newest' : 'oldest';
@@ -161,6 +169,18 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
     </button>
   );
 
+  const handleCopyLink = async () => {
+    const base = typeof window !== 'undefined' ? window.location.origin : '';
+    const query = searchParams.toString();
+    const url = `${base}${pathname}${query ? `?${query}` : ''}`;
+    try {
+      await navigator.clipboard.writeText(url);
+      setCopied(true);
+    } catch (error) {
+      console.error('Failed to copy link', error);
+    }
+  };
+
   const quickFilters = useMemo<QuickFilter[]>(() => {
     const unassignedCount = ownershipCounts.find((entry) => entry.id === 'unassigned')?.count ?? 0;
     const pinnedEntries = Array.from(pinnedAgents).map((id) => {
@@ -226,6 +246,13 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
           <span className="rounded-full bg-amber-400/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-100">
             {tasks.length} alert{tasks.length === 1 ? "" : "s"}
           </span>
+          <button
+            type="button"
+            className="rounded-full border border-amber-200/40 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-100 hover:bg-amber-400/10"
+            onClick={handleCopyLink}
+          >
+            {copied ? "Link copied" : "Copy share link"}
+          </button>
           <details className="group">
             <summary className="flex cursor-pointer items-center text-xs uppercase tracking-wide text-amber-100 underline decoration-dotted decoration-amber-300/80">
               Legend
