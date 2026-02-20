@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.8] - 2026-02-19
+- Add workspace memory alerts that list every agent lacking documented memories, with quick links to append updates
+- Display the reminders across both dashboards so leads get nudged before staffing an unbriefed operator
+
 ## [0.1.7] - 2026-02-19
 - Add per-agent activity timelines by correlating audit log events with their assigned work
 - Introduce a reusable timeline component for dossiers, including safe metadata rendering

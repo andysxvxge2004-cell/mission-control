@@ -8,6 +8,7 @@ import { TaskFilters } from "@/components/tasks/task-filters";
 import { TaskAgingAlerts } from "@/components/tasks/task-aging-alerts";
 import { AuditLogList } from "@/components/audit/audit-log";
 import { AgentPerformanceRollup } from "@/components/agents/agent-performance-rollup";
+import { AgentsNeedingMemory } from "@/components/agents/agents-needing-memory";
 import { ensureCoreAgents } from "@/lib/core-agents";
 import { TASK_STATUSES, type TaskStatus } from "@/lib/constants";
 import { getStaleCutoffDate } from "@/lib/task-metrics";
@@ -90,6 +91,7 @@ export default async function MissionControlPage({ searchParams }: MissionContro
   };
 
   const agentsForSelect = agents.map(({ id, name }) => ({ id, name }));
+  const agentsMissingMemories = agents.filter((agent) => agent.memories.length === 0);
   const hasActiveFilters = Boolean(agentFilter || statusFilter);
   const stuckCount = agingTasks.length;
   const statCards = [
@@ -149,6 +151,10 @@ export default async function MissionControlPage({ searchParams }: MissionContro
             ))}
           </div>
         </header>
+
+        {agentsMissingMemories.length ? (
+          <AgentsNeedingMemory agents={agents} />
+        ) : null}
 
         <section className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-4">
