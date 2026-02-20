@@ -76,6 +76,28 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
       .sort((a, b) => b.count - a.count);
   }, [tasks]);
 
+  const totalStuck = tasks.length;
+
+  const quickFilters = useMemo(() => {
+    const unassignedCount = ownershipCounts.find((entry) => entry.id === 'unassigned')?.count ?? 0;
+    const base = [
+      { label: 'All', value: 'all', count: totalStuck },
+      { label: 'Unassigned', value: 'unassigned', count: unassignedCount },
+      ...ownershipCounts.slice(0, 4).map((entry) => ({ label: entry.name, value: entry.id, count: entry.count }))
+    ];
+    const seen = new Set<string>();
+    return base
+      .filter((entry) => {
+        if (seen.has(entry.value)) return false;
+        seen.add(entry.value);
+        return entry.count > 0 || entry.value === 'all';
+      })
+      .map((entry) => ({
+        ...entry,
+        share: totalStuck ? Math.max(5, Math.round((entry.count / totalStuck) * 100)) : 0
+      }));
+  }, [ownershipCounts, totalStuck]);
+
   const filteredTasks = useMemo(() => {
     const taskCopy = tasks.filter((task) => {
       if (agentFilter === "all") return true;
@@ -133,22 +155,27 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
 
       <div className="space-y-3">
         <div className="flex flex-wrap gap-2 text-xs">
-          {[
-            { label: 'All', value: 'all' },
-            { label: 'Unassigned', value: 'unassigned' },
-            ...ownershipCounts.slice(0, 4).map((entry) => ({ label: `${entry.name} (${entry.count})`, value: entry.id }))
-          ].map((filter) => (
+          {quickFilters.map((filter) => (
             <button
               key={filter.value}
               type="button"
-              className={`rounded-full border px-3 py-1 text-[11px] font-semibold uppercase tracking-wide ${
+              className={`flex w-40 flex-col gap-1 rounded-2xl border px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wide ${
                 agentFilter === filter.value
-                  ? 'border-amber-300 bg-amber-400/20 text-amber-50'
-                  : 'border-white/20 text-white/70 hover:border-amber-200 hover:text-amber-100'
+                  ? 'border-amber-300 bg-amber-400/15 text-amber-50'
+                  : 'border-white/15 text-white/70 hover:border-amber-200 hover:text-amber-100'
               }`}
               onClick={() => updateQuery(filter.value, sortOrder)}
             >
-              {filter.label}
+              <span className="flex items-center justify-between gap-2">
+                <span className="truncate">{filter.label}</span>
+                <span className="text-[10px] text-white/60">{filter.count}</span>
+              </span>
+              <span className="block h-1.5 rounded-full bg-white/10">
+                <span
+                  className="block h-full rounded-full bg-amber-300/80"
+                  style={{ width: `${Math.min(100, filter.share)}%` }}
+                />
+              </span>
             </button>
           ))}
         </div>
