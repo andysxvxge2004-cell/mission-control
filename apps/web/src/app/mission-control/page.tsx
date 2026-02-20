@@ -1,4 +1,3 @@
-import Link from "next/link";
 import { prisma, type Prisma } from "@mission-control/db";
 import { AgentsList } from "@/components/agents/agents-list";
 import { CreateAgentForm } from "@/components/agents/create-agent-form";
@@ -44,7 +43,7 @@ export default async function MissionControlPage({ searchParams }: MissionContro
   const now = new Date();
   const agingThreshold = getStaleCutoffDate(now.getTime());
 
-  const [agents, filteredTasks, auditLogs, todoCount, doingCount, doneCount, agingTasks] = await Promise.all([
+  const [agents, filteredTasks, auditLogs, agingTasks] = await Promise.all([
     prisma.agent.findMany({
       orderBy: { createdAt: "asc" },
       include: {
@@ -71,9 +70,6 @@ export default async function MissionControlPage({ searchParams }: MissionContro
         task: { select: { id: true, title: true } }
       }
     }),
-    prisma.task.count({ where: { status: "TODO" } }),
-    prisma.task.count({ where: { status: "DOING" } }),
-    prisma.task.count({ where: { status: "DONE" } }),
     prisma.task.findMany({
       where: {
         status: "DOING",
@@ -84,78 +80,15 @@ export default async function MissionControlPage({ searchParams }: MissionContro
     })
   ]);
 
-  const statusCounts: Record<TaskStatus, number> = {
-    TODO: todoCount,
-    DOING: doingCount,
-    DONE: doneCount
-  };
-
   const agentsForSelect = agents.map(({ id, name }) => ({ id, name }));
-  const agentsMissingMemories = agents.filter((agent) => agent.memories.length === 0);
   const hasActiveFilters = Boolean(agentFilter || statusFilter);
   const stuckCount = agingTasks.length;
-  const statCards = [
-    { label: "Agents", value: agents.length },
-    { label: "Tasks open", value: statusCounts.TODO + statusCounts.DOING },
-    { label: "Completed", value: statusCounts.DONE },
-    { label: "Stuck in Doing", value: stuckCount, highlight: stuckCount > 0 },
-    { label: "Unbriefed agents", value: agentsMissingMemories.length, highlight: agentsMissingMemories.length > 0 }
-  ];
 
   return (
-    <main className="min-h-screen bg-slate-950 px-6 py-10">
-      <div className="mx-auto flex max-w-6xl flex-col gap-10">
-        <header className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 to-black p-8 text-white shadow-2xl">
-          <div className="flex flex-wrap items-center justify-between gap-4">
-            <div>
-              <p className="text-sm uppercase tracking-[0.3em] text-indigo-300">Mission Control</p>
-              <h1 className="mt-4 text-3xl font-semibold leading-tight text-white md:text-4xl">
-                Internal AI office for TradeWise operations.
-              </h1>
-              <p className="mt-3 max-w-2xl text-white/70">
-                Staff and audit every specialist agent from one command deck.
-              </p>
-            </div>
-            <Link
-              href="/"
-              className="rounded-full border border-white/20 px-5 py-2 text-sm font-semibold tracking-wide text-white transition hover:border-indigo-300 hover:text-indigo-200"
-            >
-              TradeWise Dev Dashboard
-            </Link>
-          </div>
-          <div className="mt-6 grid gap-4 md:grid-cols-2 lg:grid-cols-5">
-            {statCards.map((stat) => (
-              <div
-                key={stat.label}
-                className={`rounded-2xl border p-4 ${
-                  stat.highlight ? "border-amber-300/60 bg-amber-400/10" : "border-white/10 bg-white/5"
-                }`}
-              >
-                <p
-                  className={`text-xs uppercase tracking-wide ${
-                    stat.highlight ? "text-amber-100" : "text-white/60"
-                  }`}
-                >
-                  {stat.label}
-                </p>
-                <p
-                  className={`mt-2 text-3xl font-semibold ${
-                    stat.highlight ? "text-amber-50" : "text-white"
-                  }`}
-                >
-                  {stat.value}
-                </p>
-                {stat.highlight ? (
-                  <p className="mt-1 text-[11px] uppercase tracking-wide text-amber-100/80">Needs attention</p>
-                ) : null}
-              </div>
-            ))}
-          </div>
-        </header>
+    <div className="flex flex-col gap-10">
+      <AgentsNeedingMemory agents={agents} referenceTime={now} />
 
-        <AgentsNeedingMemory agents={agents} referenceTime={now} />
-
-        <section className="grid gap-6 lg:grid-cols-3">
+      <section className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-4">
             <div className="flex items-center justify-between">
               <h2 className="text-xl font-semibold text-white">Agent roster</h2>
@@ -204,6 +137,5 @@ export default async function MissionControlPage({ searchParams }: MissionContro
           <AuditLogList logs={auditLogs} />
         </section>
       </div>
-    </main>
   );
 }

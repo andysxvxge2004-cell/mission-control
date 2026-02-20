@@ -8,6 +8,18 @@ interface TaskAgingAlertsProps {
   referenceTime: Date;
 }
 
+const AGENT_COLOR_MAP = [
+  "text-rose-200",
+  "text-indigo-200",
+  "text-emerald-200",
+  "text-amber-200",
+  "text-cyan-200"
+];
+
+function getAgentBadgeClass(agentId: string, index: number) {
+  const color = AGENT_COLOR_MAP[index % AGENT_COLOR_MAP.length];
+  return `${color} border-white/20`;
+}
 export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) {
   if (!tasks.length) {
     return (
@@ -24,18 +36,43 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
           <p className="text-xs uppercase tracking-[0.3em] text-amber-200">Aging alerts</p>
           <h3 className="text-lg font-semibold text-white">Tasks stuck in Doing</h3>
         </div>
-        <span className="rounded-full bg-amber-400/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-100">
-          {tasks.length} alert{tasks.length === 1 ? "" : "s"}
-        </span>
+        <div className="flex flex-wrap items-center gap-2">
+          <span className="rounded-full bg-amber-400/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-100">
+            {tasks.length} alert{tasks.length === 1 ? "" : "s"}
+          </span>
+          <details className="group">
+            <summary className="flex cursor-pointer items-center text-xs uppercase tracking-wide text-amber-100 underline decoration-dotted decoration-amber-300/80">
+              Legend
+            </summary>
+            <div className="mt-2 space-y-1 rounded-lg border border-amber-200/30 bg-black/30 p-2 text-[11px] text-white/80">
+              <p>Agent badge colors rotate to help differentiate owners:</p>
+              <div className="flex flex-wrap gap-2">
+                {AGENT_COLOR_MAP.map((color, idx) => (
+                  <span
+                    key={color}
+                    className={`rounded-full border px-2 py-0.5 ${color} border-white/10 text-[10px] uppercase tracking-wide`}
+                  >
+                    Agent {idx + 1}
+                  </span>
+                ))}
+              </div>
+            </div>
+          </details>
+        </div>
       </header>
       <ol className="space-y-3">
-        {tasks.map((task) => (
+        {tasks.map((task, index) => (
           <li key={task.id} className="rounded-2xl border border-white/15 bg-black/30 p-4">
             <div className="flex flex-wrap items-center justify-between gap-3">
-              <div>
-                <p className="text-xs uppercase tracking-wide text-amber-200">
+              <div className="flex items-center gap-2">
+                <span
+                  className={`rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wide text-white/80 ${getAgentBadgeClass(
+                    task.agent?.id ?? "unassigned",
+                    index
+                  )}`}
+                >
                   {task.agent?.name ?? "Unassigned"}
-                </p>
+                </span>
                 <p className="text-base font-semibold text-white">{task.title}</p>
               </div>
               <span className="rounded-full bg-amber-500/20 px-3 py-1 text-xs font-semibold text-amber-100">
