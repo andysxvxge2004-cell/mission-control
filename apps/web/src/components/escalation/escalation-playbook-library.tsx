@@ -90,6 +90,7 @@ export function EscalationPlaybookLibrary({ playbooks }: { playbooks: Escalation
   const [copiedPlaybookId, setCopiedPlaybookId] = useState<string | null>(null);
   const [impactFilter, setImpactFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
+  const [ownerFilter, setOwnerFilter] = useState<string>("ALL");
   const [sortKey, setSortKey] = useState<"IMPACT" | "TITLE" | "UPDATED">("IMPACT");
   const [editingId, setEditingId] = useState<string | null>(null);
 
@@ -127,16 +128,25 @@ export function EscalationPlaybookLibrary({ playbooks }: { playbooks: Escalation
     }, {});
   }, [playbooks]);
 
+  const ownerCounts = useMemo(() => {
+    return playbooks.reduce<Record<string, number>>((acc, playbook) => {
+      acc[playbook.owner] = (acc[playbook.owner] ?? 0) + 1;
+      return acc;
+    }, {});
+  }, [playbooks]);
+
   const filteredPlaybooks = useMemo(() => {
     const normalizedQuery = searchQuery.trim().toLowerCase();
     return playbooks.filter((playbook) => {
       const matchesImpact = impactFilter === "ALL" || playbook.impactLevel === impactFilter;
       if (!matchesImpact) return false;
+      const matchesOwner = ownerFilter === "ALL" || playbook.owner === ownerFilter;
+      if (!matchesOwner) return false;
       if (!normalizedQuery) return true;
       const haystack = `${playbook.title} ${playbook.scenario} ${playbook.owner}`.toLowerCase();
       return haystack.includes(normalizedQuery);
     });
-  }, [impactFilter, playbooks, searchQuery]);
+  }, [impactFilter, ownerFilter, playbooks, searchQuery]);
 
   const sortedPlaybooks = useMemo(() => {
     return [...filteredPlaybooks].sort((a, b) => {
@@ -179,6 +189,26 @@ export function EscalationPlaybookLibrary({ playbooks }: { playbooks: Escalation
                   isActive ? "border-indigo-300 bg-indigo-400/20 text-white" : "border-white/15 text-white/70 hover:text-white"
                 }`}
                 onClick={() => setImpactFilter(level)}
+              >
+                <span>{label}</span>
+                <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-white">{count}</span>
+              </button>
+            );
+          })}
+        </div>
+        <div className="flex flex-wrap gap-2">
+          {["ALL", ...Object.keys(ownerCounts).sort()].map((owner) => {
+            const isActive = ownerFilter === owner;
+            const label = owner === "ALL" ? "All owners" : owner;
+            const count = owner === "ALL" ? playbooks.length : ownerCounts[owner] ?? 0;
+            return (
+              <button
+                key={owner}
+                type="button"
+                className={`flex items-center gap-2 rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide transition ${
+                  isActive ? "border-emerald-300 bg-emerald-400/20 text-white" : "border-white/15 text-white/70 hover:text-white"
+                }`}
+                onClick={() => setOwnerFilter(owner)}
               >
                 <span>{label}</span>
                 <span className="rounded-full bg-white/10 px-2 py-0.5 text-[10px] text-white">{count}</span>

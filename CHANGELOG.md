@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.36] - 2026-02-20
+- Playbook library adds owner filter chips so ops can jump directly to a commander’s runbooks without typing searches.
+
 ## [0.1.34] - 2026-02-20
 - Escalation library now shows last-updated timestamps and supports impact/title/recency sorting so ops can prioritize the freshest runbook in a click.
 
