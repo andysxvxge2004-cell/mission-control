@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.35] - 2026-02-20
+- WHAT: Re-enabled Escalation Playbooks after APPROVED: SCHEMA, exposing the full library + CRUD tools in Mission Control Intelligence.
+- WHY: Teams need ready-to-run escalation plans now that the schema is sanctioned.
+- HOW: Reverted the quarantine commit, restored server actions/seeding, and brought the playbook UI back online.
+
 ## [0.1.33] - 2026-02-20
 - Mission Control digests can now be customized (choose sections + Slack/plain formats) before export
 
