@@ -25,6 +25,14 @@ function getAgentBadgeClass(agentId: string, index: number) {
   return `${color} border-white/20`;
 }
 type SortOrder = "oldest" | "newest";
+type QuickFilter = {
+  label: string;
+  value: string;
+  count: number;
+  share: number;
+  pinnable: boolean;
+  pinned: boolean;
+};
 
 export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) {
   const router = useRouter();
@@ -33,8 +41,10 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
 
   const agentFilter = searchParams.get('agingAgent') ?? 'all';
   const sortOrder: SortOrder = searchParams.get('agingSort') === 'newest' ? 'newest' : 'oldest';
+  const pinnedParam = searchParams.get('agingPinned') ?? '';
+  const pinnedAgents = useMemo(() => new Set(pinnedParam ? pinnedParam.split(',').filter(Boolean) : []), [pinnedParam]);
 
-  const updateQuery = (nextAgent: string, nextSort: SortOrder) => {
+  const updateQuery = (nextAgent: string, nextSort: SortOrder, nextPinned?: string[]) => {
     const params = new URLSearchParams(searchParams.toString());
     if (nextAgent === 'all') {
       params.delete('agingAgent');
@@ -46,6 +56,13 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
       params.delete('agingSort');
     } else {
       params.set('agingSort', nextSort);
+    }
+
+    const pins = nextPinned ?? Array.from(pinnedAgents);
+    if (!pins.length) {
+      params.delete('agingPinned');
+    } else {
+      params.set('agingPinned', pins.join(','));
     }
 
     const query = params.toString();
@@ -78,38 +95,59 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
 
   const totalStuck = tasks.length;
 
-  const quickFilters = useMemo(() => {
+  const handleTogglePin = (agentId: string) => {
+    if (agentId === 'all' || agentId === 'unassigned') {
+      return;
+    }
+    const next = new Set(pinnedAgents);
+    if (next.has(agentId)) {
+      next.delete(agentId);
+    } else {
+      next.add(agentId);
+    }
+    updateQuery(agentFilter, sortOrder, Array.from(next));
+  };
+
+  const quickFilters = useMemo<QuickFilter[]>(() => {
     const unassignedCount = ownershipCounts.find((entry) => entry.id === 'unassigned')?.count ?? 0;
+    const pinnedEntries = Array.from(pinnedAgents).map((id) => {
+      const owned = ownershipCounts.find((entry) => entry.id === id);
+      const fallbackName = owned?.name ?? agentOptions.find((agent) => agent.id === id)?.name ?? 'Pinned agent';
+      return { label: fallbackName, value: id, count: owned?.count ?? 0, pinnable: true, pinned: true };
+    });
+    const dynamicEntries = ownershipCounts
+      .filter((entry) => entry.id !== 'unassigned' && !pinnedAgents.has(entry.id))
+      .slice(0, 4)
+      .map((entry) => ({ label: entry.name, value: entry.id, count: entry.count, pinnable: true, pinned: false }));
     const base = [
-      { label: 'All', value: 'all', count: totalStuck },
-      { label: 'Unassigned', value: 'unassigned', count: unassignedCount },
-      ...ownershipCounts.slice(0, 4).map((entry) => ({ label: entry.name, value: entry.id, count: entry.count }))
+      { label: 'All agents', value: 'all', count: totalStuck, pinnable: false, pinned: false },
+      { label: 'Unassigned', value: 'unassigned', count: unassignedCount, pinnable: false, pinned: false },
+      ...pinnedEntries,
+      ...dynamicEntries
     ];
     const seen = new Set<string>();
     return base
       .filter((entry) => {
         if (seen.has(entry.value)) return false;
         seen.add(entry.value);
-        return entry.count > 0 || entry.value === 'all';
+        return entry.count > 0 || entry.value === 'all' || entry.value === 'unassigned' || entry.pinned;
       })
       .map((entry) => ({
         ...entry,
         share: totalStuck ? Math.max(5, Math.round((entry.count / totalStuck) * 100)) : 0
       }));
-  }, [ownershipCounts, totalStuck]);
+  }, [ownershipCounts, totalStuck, pinnedAgents, agentOptions]);
 
-  const filteredTasks = useMemo(() => {
-    const taskCopy = tasks.filter((task) => {
+  const filteredTasks = tasks
+    .filter((task) => {
       if (agentFilter === "all") return true;
       if (agentFilter === "unassigned") return !task.agent?.id;
       return task.agent?.id === agentFilter;
-    });
-
-    return taskCopy.sort((a, b) => {
+    })
+    .sort((a, b) => {
       const diff = new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
       return sortOrder === "oldest" ? diff : -diff;
     });
-  }, [tasks, agentFilter, sortOrder]);
 
   if (!tasks.length) {
     return (
@@ -168,7 +206,23 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
             >
               <span className="flex items-center justify-between gap-2">
                 <span className="truncate">{filter.label}</span>
-                <span className="text-[10px] text-white/60">{filter.count}</span>
+                <span className="flex items-center gap-1 text-[10px] text-white/60">
+                  {filter.pinnable ? (
+                    <button
+                      type="button"
+                      aria-label={filter.pinned ? `Unpin ${filter.label}` : `Pin ${filter.label}`}
+                      className={`text-xs ${filter.pinned ? 'text-amber-200' : 'text-white/40'} hover:text-amber-100`}
+                      onClick={(event) => {
+                        event.preventDefault();
+                        event.stopPropagation();
+                        handleTogglePin(filter.value);
+                      }}
+                    >
+                      {filter.pinned ? '★' : '☆'}
+                    </button>
+                  ) : null}
+                  <span>{filter.count}</span>
+                </span>
               </span>
               <span className="block h-1.5 rounded-full bg-white/10">
                 <span
