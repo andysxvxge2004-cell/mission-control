@@ -1,11 +1,8 @@
 # Changelog
 
 ## [0.1.5] - 2026-02-19
-- Flag DOING tasks that have been idle for more than 48 hours with "Stuck" badges, warning styling, and last-movement timestamps
-- Improve TaskList empty states so filtered views explain when no results match
-
-## [0.1.4] - 2026-02-19
-- Surface per-agent workload badges on roster cards to show TODO/DOING/DONE counts at a glance
+- Surface a dedicated aging-alerts panel that lists every DOING task idle for 48+ hours across dashboards
+- Highlight each stuck task with staleness badges, last-update timestamps, and agent context for fast triage
 
 ## [0.1.4] - 2026-02-19
 - Add agent performance rollups highlighting open vs. completed load for every operator across both dashboards

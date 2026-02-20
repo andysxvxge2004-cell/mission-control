@@ -5,6 +5,7 @@ import { CreateAgentForm } from "@/components/agents/create-agent-form";
 import { TaskForm } from "@/components/tasks/task-form";
 import { TaskList } from "@/components/tasks/task-list";
 import { TaskFilters } from "@/components/tasks/task-filters";
+import { TaskAgingAlerts } from "@/components/tasks/task-aging-alerts";
 import { AuditLogList } from "@/components/audit/audit-log";
 import { AgentPerformanceRollup } from "@/components/agents/agent-performance-rollup";
 import { ensureCoreAgents } from "@/lib/core-agents";
@@ -38,7 +39,10 @@ export default async function MissionControlPage({ searchParams }: MissionContro
     taskWhere.status = statusFilter;
   }
 
-  const [agents, filteredTasks, auditLogs, todoCount, doingCount, doneCount] = await Promise.all([
+  const now = new Date();
+  const agingThreshold = new Date(now.getTime() - 1000 * 60 * 60 * 48);
+
+  const [agents, filteredTasks, auditLogs, todoCount, doingCount, doneCount, agingTasks] = await Promise.all([
     prisma.agent.findMany({
       orderBy: { createdAt: "asc" },
       include: {
@@ -60,7 +64,15 @@ export default async function MissionControlPage({ searchParams }: MissionContro
     }),
     prisma.task.count({ where: { status: "TODO" } }),
     prisma.task.count({ where: { status: "DOING" } }),
-    prisma.task.count({ where: { status: "DONE" } })
+    prisma.task.count({ where: { status: "DONE" } }),
+    prisma.task.findMany({
+      where: {
+        status: "DOING",
+        updatedAt: { lt: agingThreshold }
+      },
+      orderBy: { updatedAt: "asc" },
+      include: { agent: { select: { id: true, name: true } } }
+    })
   ]);
 
   const statusCounts: Record<TaskStatus, number> = {
@@ -127,6 +139,7 @@ export default async function MissionControlPage({ searchParams }: MissionContro
 
         <section className="space-y-4">
           <AgentPerformanceRollup agents={agents} />
+          <TaskAgingAlerts tasks={agingTasks} referenceTime={now} />
         </section>
 
         <section className="grid gap-6 lg:grid-cols-2">
