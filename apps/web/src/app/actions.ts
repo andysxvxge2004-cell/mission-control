@@ -4,6 +4,7 @@ import { prisma } from "@mission-control/db";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
 import { ESCALATION_IMPACT_LEVELS } from "@/lib/escalation-playbooks";
+import { ESCALATION_PLAYBOOKS_ENABLED } from "@/lib/feature-flags";
 
 const taskSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -54,6 +55,12 @@ const playbookIdSchema = z.object({
 const playbookLinkSchema = z.object({
   playbookId: z.string().min(1)
 });
+
+const PLAYBOOKS_DISABLED_MESSAGE = "Escalation playbooks are disabled pending approval.";
+
+function playbooksDisabledResponse() {
+  return { error: PLAYBOOKS_DISABLED_MESSAGE };
+}
 
 async function writeAuditLog(action: string, metadata: Record<string, unknown>) {
   await prisma.auditLog.create({
@@ -177,6 +184,10 @@ export async function addMemory(_: unknown, formData: FormData) {
 }
 
 export async function createEscalationPlaybook(_: unknown, formData: FormData) {
+  if (!ESCALATION_PLAYBOOKS_ENABLED) {
+    return playbooksDisabledResponse();
+  }
+
   const result = playbookSchema.safeParse({
     title: formData.get("title"),
     scenario: formData.get("scenario"),
@@ -220,6 +231,10 @@ export async function createEscalationPlaybook(_: unknown, formData: FormData) {
 }
 
 export async function deleteEscalationPlaybook(_: unknown, formData: FormData) {
+  if (!ESCALATION_PLAYBOOKS_ENABLED) {
+    return playbooksDisabledResponse();
+  }
+
   const result = playbookIdSchema.safeParse({ playbookId: formData.get("playbookId") });
   if (!result.success) {
     return { error: result.error.errors[0]?.message ?? "Invalid input" };
@@ -234,6 +249,10 @@ export async function deleteEscalationPlaybook(_: unknown, formData: FormData) {
   return { success: true };
 }
 export async function updateEscalationPlaybook(_: unknown, formData: FormData) {
+  if (!ESCALATION_PLAYBOOKS_ENABLED) {
+    return playbooksDisabledResponse();
+  }
+
   const result = playbookUpdateSchema.safeParse({
     playbookId: formData.get("playbookId"),
     title: formData.get("title"),
@@ -283,6 +302,10 @@ export async function updateEscalationPlaybook(_: unknown, formData: FormData) {
 
 
 export async function duplicateEscalationPlaybook(_: unknown, formData: FormData) {
+  if (!ESCALATION_PLAYBOOKS_ENABLED) {
+    return playbooksDisabledResponse();
+  }
+
   const result = playbookLinkSchema.safeParse({ playbookId: formData.get("playbookId") });
   if (!result.success) {
     return { error: result.error.errors[0]?.message ?? "Invalid input" };

@@ -1,0 +1,1 @@
+export const ESCALATION_PLAYBOOKS_ENABLED = process.env.ESCALATION_PLAYBOOKS === "true";

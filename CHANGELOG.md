@@ -1,13 +1,13 @@
 # Changelog
 
 ## [0.1.33] - 2026-02-20
-- Mission Control digests can now be customized (choose sections + Slack/plain formats) before export
+- Escalation playbook library adds impact/title/last-updated sorting plus relative timestamps on each card so ops can prioritize the freshest runbooks with one click.
 
 ## [0.1.32] - 2026-02-20
-- Files tab adds sort controls (recent activity vs alphabetical) so ops can prioritize the freshest intel or scan by name
+- Added one-click duplication for escalation playbooks so ops can clone a runbook (steps + comms) before editing.
 
 ## [0.1.31] - 2026-02-20
-- Mission Control Files tab now includes dossier search, role filter chips, and memory previews for faster navigation
+- Added inline editing for escalation playbooks: cards now open an editor tied to a Prisma update action so titles, owners, impact, steps, and comms can be tweaked without leaving Mission Control.
 
 ## [0.1.30] - 2026-02-20
 - Escalation playbook cards now expose a delete control wired to a validated server action so stale runbooks disappear instantly

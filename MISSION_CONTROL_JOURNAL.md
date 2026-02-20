@@ -66,3 +66,6 @@
 - 2026-02-20 05:06 MST | [IMPORTANT] | v0.1.31 | Added inline editing for escalation playbooks: cards now open an editor tied to a new Prisma update action so titles, owners, impact, steps, and comms can be tweaked without leaving Mission Control. Files: actions, library component, new editor, CHANGELOG.md. Verify: open Intelligence, hit Edit on a playbook, save, and confirm the card reflects the change immediately.
 
 - 2026-02-20 05:17 MST | [IMPORTANT] | v0.1.32 | Escalation playbooks can now be duplicated in one click; new server action clones metadata, steps, and comms, and the library exposes a Duplicate button next to Edit/Delete. Files: actions, library component, new duplicate form, CHANGELOG.md. Verify: open Intelligence, hit Duplicate on any playbook, ensure a '(copy)' version appears.
+- 2026-02-20 09:46 MST | [IMPORTANT] | no commit | Quarantined Escalation Playbooks (flagged via ESCALATION_PLAYBOOKS=false, UI/actions gated).
+
+- 2026-02-20 09:46 MST | [IMPORTANT] | v0.1.33 | Escalation playbook library now shows last-updated timestamps and supports impact/title/recency sorting so ops can find the freshest runbook instantly. Files: intelligence page (playbook fetch), library component, CHANGELOG.md. Verify: open /mission-control/intelligence, adjust the new sort dropdown, and confirm cards reorder + show relative times.
