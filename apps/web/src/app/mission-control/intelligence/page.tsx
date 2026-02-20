@@ -46,7 +46,6 @@ export default async function MissionControlIntelligencePage() {
       scenario: playbook.scenario,
       impactLevel: playbook.impactLevel,
       owner: playbook.owner,
-      updatedAt: playbook.updatedAt.toISOString(),
       steps: playbook.steps.map((step) => step.instruction),
       communicationTemplate: playbook.communicationTemplate
     }))
