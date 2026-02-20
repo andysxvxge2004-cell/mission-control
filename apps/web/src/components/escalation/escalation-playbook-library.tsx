@@ -1,6 +1,8 @@
 'use client';
 
 import { useMemo, useState } from "react";
+import { useFormStatus } from "react-dom";
+import { deleteEscalationPlaybook } from "@/app/actions";
 import { ESCALATION_IMPACT_LEVELS, type EscalationImpactLevel } from "@/lib/escalation-playbooks";
 
 export type EscalationPlaybookView = {
@@ -12,6 +14,36 @@ export type EscalationPlaybookView = {
   steps: string[];
   communicationTemplate?: string | null;
 };
+
+interface DeletePlaybookFormProps {
+  playbookId: string;
+  title: string;
+}
+
+function DeletePlaybookForm({ playbookId, title }: DeletePlaybookFormProps) {
+  const { pending } = useFormStatus();
+
+  return (
+    <form
+      action={deleteEscalationPlaybook}
+      className="ml-auto"
+      onSubmit={(event) => {
+        if (!window.confirm(`Delete playbook "${title}"?`)) {
+          event.preventDefault();
+        }
+      }}
+    >
+      <input type="hidden" name="playbookId" value={playbookId} />
+      <button
+        type="submit"
+        className="rounded-full border border-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/70 transition hover:border-rose-300 hover:text-rose-200 disabled:opacity-60"
+        disabled={pending}
+      >
+        {pending ? "Deleting…" : "Delete"}
+      </button>
+    </form>
+  );
+}
 
 const IMPACT_BADGES: Record<string, string> = {
   Critical: "bg-rose-500/20 text-rose-100 border border-rose-300/30",
@@ -108,18 +140,21 @@ export function EscalationPlaybookLibrary({ playbooks }: { playbooks: Escalation
       <div className="grid gap-4 lg:grid-cols-2">
         {filteredPlaybooks.map((playbook) => (
           <article key={playbook.id} className="rounded-3xl border border-white/10 bg-white/[0.04] p-5 shadow-inner shadow-black/20">
-            <header className="flex flex-wrap items-center justify-between gap-2">
-              <div>
+            <header className="flex flex-wrap items-center gap-2">
+              <div className="flex-1">
                 <p className="text-xs uppercase tracking-wide text-white/50">{playbook.owner}</p>
                 <h3 className="text-xl font-semibold text-white">{playbook.title}</h3>
               </div>
-              <span
-                className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${
+              <div className="flex items-center gap-2">
+                <span
+                  className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${
                   IMPACT_BADGES[playbook.impactLevel] ?? "bg-white/10 text-white"
                 }`}
               >
                 {playbook.impactLevel}
-              </span>
+                </span>
+                <DeletePlaybookForm playbookId={playbook.id} title={playbook.title} />
+              </div>
             </header>
 
             <p className="mt-3 text-sm text-white/70">{playbook.scenario}</p>

@@ -1,7 +1,7 @@
 # Changelog
 
 ## [0.1.30] - 2026-02-20
-- Audit log panel now supports action filter chips + text search so you can zero in on the exact event in seconds
+- Escalation playbook cards now expose a delete control wired to a validated server action so stale runbooks disappear instantly
 
 ## [0.1.29] - 2026-02-20
 - Escalation playbook library now includes impact filter chips and fuzzy search so ops can immediately surface the right runbook and comms template

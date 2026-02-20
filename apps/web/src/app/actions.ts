@@ -43,6 +43,10 @@ const playbookSchema = z.object({
   communicationTemplate: z.string().optional()
 });
 
+const playbookIdSchema = z.object({
+  playbookId: z.string().min(1)
+});
+
 async function writeAuditLog(action: string, metadata: Record<string, unknown>) {
   await prisma.auditLog.create({
     data: {
@@ -202,6 +206,21 @@ export async function createEscalationPlaybook(_: unknown, formData: FormData) {
   });
 
   await writeAuditLog("playbook.created", { playbookId: playbook.id, impactLevel });
+  revalidatePath("/mission-control/intelligence");
+
+  return { success: true };
+}
+
+export async function deleteEscalationPlaybook(_: unknown, formData: FormData) {
+  const result = playbookIdSchema.safeParse({ playbookId: formData.get("playbookId") });
+  if (!result.success) {
+    return { error: result.error.errors[0]?.message ?? "Invalid input" };
+  }
+
+  const { playbookId } = result.data;
+
+  await prisma.escalationPlaybook.delete({ where: { id: playbookId } });
+  await writeAuditLog("playbook.deleted", { playbookId });
   revalidatePath("/mission-control/intelligence");
 
   return { success: true };
