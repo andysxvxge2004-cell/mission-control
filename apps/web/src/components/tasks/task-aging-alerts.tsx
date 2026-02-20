@@ -84,7 +84,7 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
   const showPinnedOnly = searchParams.get('agingPinnedOnly') === '1';
   const pinnedAgents = useMemo(() => new Set(pinnedParam ? pinnedParam.split(',').filter(Boolean) : []), [pinnedParam]);
 
-  const updateQuery = (nextAgent: string, nextSort: SortOrder, nextPinned?: string[], showPinnedOnly?: boolean) => {
+  const updateQuery = (nextAgent: string, nextSort: SortOrder, nextPinned?: string[], showPinnedOnly?: boolean, presetId?: string | null) => {
     const params = new URLSearchParams(searchParams.toString());
     if (nextAgent === 'all') {
       params.delete('agingAgent');
@@ -115,6 +115,12 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
       params.set('agingPinnedOnly', '1');
     } else {
       params.delete('agingPinnedOnly');
+    }
+
+    if (presetId) {
+      params.set('agingPreset', presetId);
+    } else {
+      params.delete('agingPreset');
     }
 
     const query = params.toString();
