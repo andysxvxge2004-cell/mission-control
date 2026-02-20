@@ -1,6 +1,7 @@
 import { prisma } from "@mission-control/db";
 import { AgentPerformanceRollup } from "@/components/agents/agent-performance-rollup";
 import { EscalationPlaybookLibrary, type EscalationPlaybookView } from "@/components/escalation/escalation-playbook-library";
+import { EscalationPlaybookForm } from "@/components/escalation/escalation-playbook-form";
 import { TaskAgingAlerts } from "@/components/tasks/task-aging-alerts";
 import { ensureEscalationPlaybooks } from "@/lib/escalation-playbooks";
 import { getStaleCutoffDate } from "@/lib/task-metrics";
@@ -72,7 +73,10 @@ export default async function MissionControlIntelligencePage() {
         <TaskAgingAlerts tasks={agingTasks} referenceTime={now} />
       </div>
 
-      <EscalationPlaybookLibrary playbooks={playbookViews} />
+      <section className="grid gap-6 lg:grid-cols-[2fr_1fr]">
+        <EscalationPlaybookLibrary playbooks={playbookViews} />
+        <EscalationPlaybookForm />
+      </section>
     </div>
   );
 }

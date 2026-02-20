@@ -3,6 +3,7 @@
 import { prisma } from "@mission-control/db";
 import { revalidatePath } from "next/cache";
 import { z } from "zod";
+import { ESCALATION_IMPACT_LEVELS } from "@/lib/escalation-playbooks";
 
 const taskSchema = z.object({
   title: z.string().min(1, "Title is required"),
@@ -31,6 +32,15 @@ const agentSchema = z.object({
 const memorySchema = z.object({
   agentId: z.string().min(1),
   content: z.string().min(1, "Content required")
+});
+
+const playbookSchema = z.object({
+  title: z.string().min(1, "Title required"),
+  scenario: z.string().min(1, "Scenario required"),
+  impactLevel: z.enum(ESCALATION_IMPACT_LEVELS),
+  owner: z.string().min(1, "Owner required"),
+  steps: z.string().min(1, "Add at least one step"),
+  communicationTemplate: z.string().optional()
 });
 
 async function writeAuditLog(action: string, metadata: Record<string, unknown>) {
@@ -150,6 +160,49 @@ export async function addMemory(_: unknown, formData: FormData) {
   await writeAuditLog("memory.created", { agentId: memory.agentId, memoryId: memory.id });
 
   revalidateDash(memory.agentId);
+
+  return { success: true };
+}
+
+export async function createEscalationPlaybook(_: unknown, formData: FormData) {
+  const result = playbookSchema.safeParse({
+    title: formData.get("title"),
+    scenario: formData.get("scenario"),
+    impactLevel: formData.get("impactLevel"),
+    owner: formData.get("owner"),
+    steps: formData.get("steps"),
+    communicationTemplate: formData.get("communicationTemplate") ?? undefined
+  });
+
+  if (!result.success) {
+    return { error: result.error.errors[0]?.message ?? "Invalid input" };
+  }
+
+  const { title, scenario, impactLevel, owner, steps, communicationTemplate } = result.data;
+  const parsedSteps = steps
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+
+  if (!parsedSteps.length) {
+    return { error: "Add at least one response step" };
+  }
+
+  const playbook = await prisma.escalationPlaybook.create({
+    data: {
+      title,
+      scenario,
+      impactLevel,
+      owner,
+      communicationTemplate: communicationTemplate?.trim() ? communicationTemplate.trim() : null,
+      steps: {
+        create: parsedSteps.map((instruction, index) => ({ position: index + 1, instruction }))
+      }
+    }
+  });
+
+  await writeAuditLog("playbook.created", { playbookId: playbook.id, impactLevel });
+  revalidatePath("/mission-control/intelligence");
 
   return { success: true };
 }

@@ -1,18 +1,17 @@
 'use client';
 
 import { useMemo, useState } from "react";
+import { ESCALATION_IMPACT_LEVELS, type EscalationImpactLevel } from "@/lib/escalation-playbooks";
 
 export type EscalationPlaybookView = {
   id: string;
   title: string;
   scenario: string;
-  impactLevel: string;
+  impactLevel: EscalationImpactLevel;
   owner: string;
   steps: string[];
   communicationTemplate?: string | null;
 };
-
-const IMPACT_LEVELS = ["Critical", "High", "Medium", "Low"] as const;
 
 const IMPACT_BADGES: Record<string, string> = {
   Critical: "bg-rose-500/20 text-rose-100 border border-rose-300/30",
@@ -70,7 +69,7 @@ export function EscalationPlaybookLibrary({ playbooks }: { playbooks: Escalation
 
       <div className="flex flex-wrap gap-3 rounded-3xl border border-white/10 bg-black/30 p-4">
         <div className="flex flex-wrap gap-2">
-          {["ALL", ...IMPACT_LEVELS].map((level) => {
+          {["ALL", ...ESCALATION_IMPACT_LEVELS].map((level) => {
             const isActive = impactFilter === level;
             const label = level === "ALL" ? "All" : level;
             const count = level === "ALL" ? playbooks.length : impactCounts[level] ?? 0;
@@ -102,7 +101,7 @@ export function EscalationPlaybookLibrary({ playbooks }: { playbooks: Escalation
 
       {filteredPlaybooks.length === 0 ? (
         <div className="rounded-3xl border border-amber-300/30 bg-amber-300/10 p-4 text-sm text-amber-100">
-          No playbooks match those filters. Try another impact level or clear the search.
+          {playbooks.length === 0 ? "No playbooks yet. Add one using the form on the right." : "No playbooks match those filters. Try another impact level or clear the search."}
         </div>
       ) : null}
 

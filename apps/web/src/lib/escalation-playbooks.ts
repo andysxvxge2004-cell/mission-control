@@ -1,10 +1,26 @@
 import { prisma } from "@mission-control/db";
 
-const DEFAULT_PLAYBOOKS = [
+export const ESCALATION_IMPACT_LEVELS = [
+  "Critical",
+  "High",
+  "Medium",
+  "Low"
+] as const;
+
+export type EscalationImpactLevel = (typeof ESCALATION_IMPACT_LEVELS)[number];
+
+const DEFAULT_PLAYBOOKS: Array<{
+  title: string;
+  scenario: string;
+  impactLevel: EscalationImpactLevel;
+  owner: string;
+  communicationTemplate?: string;
+  steps: string[];
+}> = [
   {
     title: "Trading venue outage",
     scenario: "Primary brokerage API rejects orders or latency spikes beyond 5s, blocking live trades.",
-    impactLevel: "Critical",
+    impactLevel: "Critical" as EscalationImpactLevel,
     owner: "Andy / Command",
     communicationTemplate:
       "TradeWise is experiencing a brokerage outage impacting order routing. We're in escalation with the venue and will update every 15 minutes.",
@@ -19,7 +35,7 @@ const DEFAULT_PLAYBOOKS = [
   {
     title: "Mission Control UI degradation",
     scenario: "Operators cannot update tasks or latencies exceed 3s for mutations.",
-    impactLevel: "High",
+    impactLevel: "High" as EscalationImpactLevel,
     owner: "Atlasbot",
     communicationTemplate:
       "Heads up: Mission Control updates are delayed due to elevated database latency. Working the issue now; expect fresh ETA in 10 minutes.",
@@ -34,7 +50,7 @@ const DEFAULT_PLAYBOOKS = [
   {
     title: "VIP account escalation",
     scenario: "High-value partner reports blocked onboarding or missing data feed.",
-    impactLevel: "Medium",
+    impactLevel: "Medium" as EscalationImpactLevel,
     owner: "Customer Ops",
     communicationTemplate:
       "We received your escalation and are unblocking the data feed now. Expect the fix within 30 minutes; we'll confirm once validated.",
