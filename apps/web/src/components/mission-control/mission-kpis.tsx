@@ -1,19 +1,25 @@
 interface MissionKpiStripProps {
   counts: {
-    agents: number;
-    openTasks: number;
-    stuckTasks: number;
+    todo: number;
+    doing: number;
+    done: number;
+    stuck: number;
     needsBriefing: number;
+    highPriority: number;
   };
 }
 
 export function MissionKpiStrip({ counts }: MissionKpiStripProps) {
   const cards = [
-    { label: "Agents", value: counts.agents },
-    { label: "Open tasks", value: counts.openTasks },
-    { label: "Stuck tasks", value: counts.stuckTasks, highlight: counts.stuckTasks > 0 },
+    { label: "To Do", value: counts.todo },
+    { label: "In Progress", value: counts.doing },
+    { label: "Done", value: counts.done },
+    { label: "Stuck", value: counts.stuck, highlight: counts.stuck > 0 },
     { label: "Needs briefing", value: counts.needsBriefing, highlight: counts.needsBriefing > 0 }
   ];
+  if (counts.highPriority > 0) {
+    cards.push({ label: "High priority", value: counts.highPriority, highlight: true });
+  }
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">

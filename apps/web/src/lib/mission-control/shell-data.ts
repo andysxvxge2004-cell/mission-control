@@ -3,10 +3,12 @@ import { getStaleCutoffDate } from "@/lib/task-metrics";
 
 export interface MissionControlShellData {
   counts: {
-    agents: number;
-    openTasks: number;
-    stuckTasks: number;
+    todo: number;
+    doing: number;
+    done: number;
+    stuck: number;
     needsBriefing: number;
+    highPriority: number;
   };
   alerts: {
     needsBriefing: Array<{ id: string; name: string; lastMemoryAt?: Date | null }>;
@@ -17,7 +19,7 @@ export interface MissionControlShellData {
 export async function getMissionControlShellData(referenceTime = new Date()): Promise<MissionControlShellData> {
   const agingThreshold = getStaleCutoffDate(referenceTime.getTime());
 
-  const [agents, stuckTasksRaw, todoCount, doingCount] = await Promise.all([
+  const [agents, stuckTasksRaw, todoCount, doingCount, doneCount, highPriorityCount] = await Promise.all([
     prisma.agent.findMany({
       orderBy: { createdAt: "asc" },
       select: {
@@ -33,18 +35,21 @@ export async function getMissionControlShellData(referenceTime = new Date()): Pr
       take: 5
     }),
     prisma.task.count({ where: { status: "TODO" } }),
-    prisma.task.count({ where: { status: "DOING" } })
+    prisma.task.count({ where: { status: "DOING" } }),
+    prisma.task.count({ where: { status: "DONE" } }),
+    prisma.task.count({ where: { priority: "HIGH", NOT: { status: "DONE" } } })
   ]);
 
   const agentsNeedingBriefing = agents.filter((agent) => agent.memories.length === 0);
-  const openTasks = todoCount + doingCount;
 
   return {
     counts: {
-      agents: agents.length,
-      openTasks,
-      stuckTasks: stuckTasksRaw.length,
-      needsBriefing: agentsNeedingBriefing.length
+      todo: todoCount,
+      doing: doingCount,
+      done: doneCount,
+      stuck: stuckTasksRaw.length,
+      needsBriefing: agentsNeedingBriefing.length,
+      highPriority: highPriorityCount
     },
     alerts: {
       needsBriefing: agentsNeedingBriefing.map((agent) => ({

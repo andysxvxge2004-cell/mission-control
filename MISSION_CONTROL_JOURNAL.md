@@ -1,0 +1,45 @@
+# Mission Control Journal
+
+- 2026-02-19 23:30 MST | [DECISION] | no commit | Logged backlog item: Office Space UI styling blocked until Andy sends reference video. Files: BACKLOG.md. Verification: none needed. Next: Wait for reference clip, then ask whether to match exactly or borrow elements before proceeding.
+- 2026-02-19 23:37 MST | [IMPORTANT] | v0.1.13 | Task Aging alerts now show relative timestamps alongside absolute dates. Files: Task Aging panel component, CHANGELOG.md. Verify: load Mission Control and confirm alerts display “Last update Xd Yh ago.” Next: add sorting/filtering controls to aging panel.
+- 2026-02-19 23:39 MST | [INFO] | no commit | Roadmap idle. No tasks executed. Files: none. Verify: nothing. Next: await new roadmap items or instructions.
+- 2026-02-19 23:40 MST | [INFO] | no commit | Reminder delivered: roadmap fully shipped, no tasks pending. Files: none. Verify: nothing. Next: await new roadmap direction.
+- 2026-02-19 23:48 MST | [IMPORTANT] | 7c415d5 | Phase 2A shell implemented: new layout, nav, breadcrumbs, KPI + alerts strips, consistent route grouping. Files: mission-control layout + components, shell data helper, task aging tweaks. Verify: `pnpm -C apps/web lint`, open /mission-control to see new shell. Next: proceed to Phase 2B (Liquid Glass) once approved.
+- 2026-02-19 23:51 MST | [IMPORTANT] | v0.1.14 | Task Aging alerts show color-coded agent badges with legend. Files: task-aging-alerts component, CHANGELOG.md. Verify: view Mission Control aging panel for colored badges + legend. Next: add sorting/filtering controls per roadmap.
+- 2026-02-19 23:52 MST | [INFO] | no commit | Roadmap idle loop (no changes). Files: none. Verify: nothing. Next: await new roadmap direction / continue Phase 2 tasks.
+- 2026-02-19 23:52 MST | [IMPORTANT] | v0.1.14 | Reminder sent re: color-coded Task Aging alerts. Files: none. Verify: n/a. Next: implement filtering controls.
+- 2026-02-19 23:59 MST | [IMPORTANT] | v0.1.15 | Task Aging alerts now client-side with agent/sort filters + legend + reset; CHANGELOG updated. Files: task-aging-alerts, CHANGELOG.md. Verify: open Mission Control aging panel and test filters. Next: persist filters in query params for shareable views.
+- 2026-02-19 23:59 MST | [IMPORTANT] | v0.1.15 | Reminder sent re: interactive Task Aging panel. Files: none. Verify: n/a. Next: persist filters via URL.
+- 2026-02-20 00:00 MST | [INFO] | no commit | Roadmap idle loop (no new work). Files: none. Verify: nothing. Next: continue Phase 2 tasks / await new roadmap.
+- 2026-02-20 00:06 MST | [INFO] | no commit | Loop ended due to time; no new changes. Files: none. Verify: nothing. Next: start next cycle when ready.
+- 2026-02-20 00:07 MST | [INFO] | no commit | Reminder delivered: loop timed out; cue next cycle when ready. Files: none. Verify: n/a. Next: restart loop.
+- 2026-02-20 00:10 MST | [INFO] | no commit | Roadmap idle loop (no changes) while waiting for new items. Files: none. Verify: nothing. Next: continue Phase 2 tasks / await roadmap updates.
+- 2026-02-20 00:10 MST | [INFO] | no commit | Reminder delivered: roadmap still clear; no tasks pending. Files: none. Verify: n/a. Next: continue Phase 2 tasks / await roadmap updates.
+- 2026-02-20 00:29 MST | [BLOCKER] | no commit | Autonomous build failed (`write after end`, session young-cedar). Files: none. Verify: failure message. Next: investigate why process ended early before taking further action.
+- 2026-02-20 00:30 MST | [BLOCKER] | no commit | Reminder delivered: autonomous build process "young-cedar" failed (write after end). Files: none. Verify: n/a. Next: diagnose failure and resume work manually.
+- 2026-02-20 00:33 MST | [IMPORTANT] | v0.1.16 | Task Aging Alerts persist agent/sort selection via URL query params; dropdowns sync to current URL. Files: task-aging-alerts widget. Verify: filter stuck tasks, refresh/share link, confirm filters persist. Next: add quick-filter chips in future pass.
+- 2026-02-20 00:40 MST | [DECISION] | hybrid | Keep priority schema/migrations; treat as foundational primitive. Audit enum/defaults, keep optional/backwards-safe, redesign UI appearance, document semantics before deeper automation.
+- 2026-02-20 00:40 MST | [INFO] | checklist | Added Autonomy Reliability/Ops Hardening tasks per directive (write-after-end handling, logging, timeouts, small commits, patch fallback, worker isolation, checkpointing, tight reporting rules).
+- 2026-02-20 00:48 MST | [IMPORTANT] | v0.1.18 | Task Aging Alerts now have ownership-count chips (“All”, “Unassigned”, top 4 agents) for one-click filters; ROADMAP/CHANGELOG updated. Verify: open stuck panel and tap chips. Next: optional proportion bars.
+- 2026-02-20 00:49 MST | [IMPORTANT] | v0.1.18 | Reminder sent re: new ownership chips in Task Aging panel. Files: none. Verify: n/a. Next: consider proportion bars if useful.
+- 2026-02-20 00:55 MST | [IMPORTANT] | v0.1.17 | Agent search + quick-jump component shipped; roster respects `search` query; ROADMAP/CHANGELOG updated. Verify: use search box on dashboard/MC to filter + quick-jump.
+- 2026-02-20 00:55 MST | [IMPORTANT] | v0.1.17 | Reminder sent re: agent search + quick-jump feature. Files: none. Verify: n/a. Next: continue V1 checklist.
+- 2026-02-20 00:59 MST | [IMPORTANT] | v0.1.18 | Task Aging chips now show proportion bars next to counts (load visualization). Files: task-aging-alerts component, CHANGELOG.md. Verify: view stuck-task panel and note tiny bar per chip. Next: optional pinning logic.
+- 2026-02-20 01:00 MST | [IMPORTANT] | v0.1.18 | Reminder sent re: proportion bars on Task Aging chips. Files: none. Verify: n/a. Next: consider pinning feature.
+- 2026-02-20 01:13 MST | [IMPORTANT] | v0.1.19 | Task Aging chips can now be pinned via star toggle (persisted in URL) and show proportion bars + counts; CHANGELOG updated. Verify: star an agent and refresh/share link. Next: consider dedicated pinned row.
+- 2026-02-20 01:13 MST | [INFO] | no commit | Roadmap idle loop (no new work). Files: none. Verify: nothing. Next: continue Phase 2 tasks / await roadmap.
+- 2026-02-20 01:14 MST | [IMPORTANT] | v0.1.19 | Reminder sent re: pin-able Task Aging chips. Files: none. Verify: n/a. Next: consider dedicated pinned row.
+- 2026-02-20 01:22 MST | [IMPORTANT] | v0.1.20 | Task Aging quick filters split into pinned row + standard row; pins persist via URL; doc updated. Verify: pin an agent and see pinned row stay visible. Next: optional “show pinned only” toggle.
+- 2026-02-20 01:23 MST | [INFO] | no commit | Roadmap idle loop (no changes). Files: none. Verify: nothing. Next: continue V1 checklist.
+- 2026-02-20 01:25 MST | [IMPORTANT] | v0.1.20 | Reminder sent re: pinned row vs quick filters.
+- 2026-02-20 01:42 MST | [IMPORTANT] | v0.1.21 | Task Aging Alerts add pinned-only toggle + dedicated row; URL sync preserved. Files: task-aging-alerts component, CHANGELOG.md. Verify: star agents, toggle pinned-only, refresh; state persists. Next: consider named filter presets.
+- 2026-02-20 01:42 MST | [INFO] | roadmap | Roadmap idle loop (still no new tasks). Files: none. Verify: nothing. Next: continue V1 checklist.
+- 2026-02-20 01:45 MST | [IMPORTANT] | v0.1.21 | Reminder sent re: pinned-only toggle + dedicated row. Files: none. Verify: n/a. Next: consider named presets.
+- 2026-02-20 01:50 MST | [INFO] | roadmap | Added roadmap items: grouped agent Kanban lanes w/ capacity hints; automated daily command snapshots → markdown. No code changes yet.
+- 2026-02-20 01:51 MST | [IMPORTANT] | reminder | Noted new roadmap items (Kanban lanes, command snapshots). Files: none. Verify: n/a. Next: continue V1 checklist; future phases can pull new items in order.
+- 2026-02-20 02:02 MST | [BLOCKER] | no commit | Autonomous edit failed patching CHANGELOG (text mismatch). Files: CHANGELOG.md. Verify: failure log. Next: regenerate changelog section and reapply manually.
+- 2026-02-20 02:13 MST | [IMPORTANT] | v0.1.22 | Added `/api/mission-control/snapshot` endpoint + “Export snapshot” button; CHANGELOG updated; roadmap item shipped.
+- 2026-02-20 02:13 MST | [IMPORTANT] | reminder | Snapshot export feature ready (v0.1.22). Files: none. Verify: n/a. Next: continue V1 checklist.
+- 2026-02-20 02:20 MST | [INFO] | no commit | Roadmap loop idle; no new work. Files: none. Verify: nothing. Next: continue manual Mission Control V1 tasks.
+- 2026-02-20 02:43 MST | [IMPORTANT] | 0.1.23 | Shared Mission Control shell + new Tasks/Intelligence/Files routes. Files: mission-control layout/nav/shell data, new route directories. Verify: pnpm -C apps/web lint & browse /mission-control tabs. Next: continue Phase 2 checklist (roster polish, intelligence modules, files cleanup).
+

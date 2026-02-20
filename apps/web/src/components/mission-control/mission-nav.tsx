@@ -12,7 +12,8 @@ const NAV_ITEMS: NavItem[] = [
   { label: "Dashboard", href: "/mission-control" },
   { label: "Agents", href: "/mission-control/agents" },
   { label: "Tasks", href: "/mission-control/tasks" },
-  { label: "Intelligence", href: "/mission-control/intelligence" }
+  { label: "Intelligence", href: "/mission-control/intelligence" },
+  { label: "Files", href: "/mission-control/files" }
 ];
 
 export function MissionControlNav() {
