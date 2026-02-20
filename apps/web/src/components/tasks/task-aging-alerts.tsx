@@ -42,9 +42,10 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
   const agentFilter = searchParams.get('agingAgent') ?? 'all';
   const sortOrder: SortOrder = searchParams.get('agingSort') === 'newest' ? 'newest' : 'oldest';
   const pinnedParam = searchParams.get('agingPinned') ?? '';
+  const showPinnedOnly = searchParams.get('agingPinnedOnly') === '1';
   const pinnedAgents = useMemo(() => new Set(pinnedParam ? pinnedParam.split(',').filter(Boolean) : []), [pinnedParam]);
 
-  const updateQuery = (nextAgent: string, nextSort: SortOrder, nextPinned?: string[]) => {
+  const updateQuery = (nextAgent: string, nextSort: SortOrder, nextPinned?: string[], showPinnedOnly?: boolean) => {
     const params = new URLSearchParams(searchParams.toString());
     if (nextAgent === 'all') {
       params.delete('agingAgent');
@@ -63,6 +64,18 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
       params.delete('agingPinned');
     } else {
       params.set('agingPinned', pins.join(','));
+    }
+
+    if (showPinnedOnly === undefined) {
+      if (searchParams.get('agingPinnedOnly') === '1') {
+        params.set('agingPinnedOnly', '1');
+      } else {
+        params.delete('agingPinnedOnly');
+      }
+    } else if (showPinnedOnly) {
+      params.set('agingPinnedOnly', '1');
+    } else {
+      params.delete('agingPinnedOnly');
     }
 
     const query = params.toString();
@@ -105,7 +118,7 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
     } else {
       next.add(agentId);
     }
-    updateQuery(agentFilter, sortOrder, Array.from(next));
+    updateQuery(agentFilter, sortOrder, Array.from(next), showPinnedOnly);
   };
 
   const renderFilterChip = (filter: QuickFilter) => (
@@ -117,7 +130,7 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
           ? 'border-amber-300 bg-amber-400/15 text-amber-50'
           : 'border-white/15 text-white/70 hover:border-amber-200 hover:text-amber-100'
       }`}
-      onClick={() => updateQuery(filter.value, sortOrder)}
+      onClick={() => updateQuery(filter.value, sortOrder, undefined, showPinnedOnly)}
     >
       <span className="flex items-center justify-between gap-2">
         <span className="truncate">{filter.label}</span>
@@ -242,8 +255,21 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
           </div>
         ) : null}
         <div className="space-y-1">
-          <p className="text-[10px] uppercase tracking-wide text-white/50">Quick filters</p>
-          <div className="flex flex-wrap gap-2 text-xs">{defaultFilters.map((filter) => renderFilterChip(filter))}</div>
+          <div className="flex items-center justify-between">
+            <p className="text-[10px] uppercase tracking-wide text-white/50">Quick filters</p>
+            <button
+              type="button"
+              className="text-[10px] uppercase tracking-wide text-amber-100 hover:text-amber-50"
+              onClick={() => updateQuery(agentFilter, sortOrder, undefined, showPinnedOnly ? false : true)}
+            >
+              {showPinnedOnly ? 'Show all filters' : 'Pinned only view'}
+            </button>
+          </div>
+          {showPinnedOnly && pinnedFilters.length === 0 ? (
+            <p className="text-xs text-white/60">Pin agents to use pinned-only view.</p>
+          ) : (
+            <div className="flex flex-wrap gap-2 text-xs">{(showPinnedOnly ? pinnedFilters : defaultFilters).map((filter) => renderFilterChip(filter))}</div>
+          )}
         </div>
         <div className="flex flex-wrap items-center gap-3 text-xs text-white/80">
           <label className="flex flex-col gap-1">
@@ -253,7 +279,7 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
               value={agentFilter}
               onChange={(event) => {
                 const value = event.target.value;
-                updateQuery(value, sortOrder);
+                updateQuery(value, sortOrder, undefined, showPinnedOnly);
               }}
             >
               <option value="all">All agents</option>
@@ -272,7 +298,7 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
               value={sortOrder}
               onChange={(event) => {
                 const value = event.target.value as SortOrder;
-                updateQuery(agentFilter, value);
+                updateQuery(agentFilter, value, undefined, showPinnedOnly);
               }}
             >
               <option value="oldest">Oldest first</option>
@@ -284,7 +310,7 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
               type="button"
               className="rounded-md border border-amber-300/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-100 hover:bg-amber-400/10"
               onClick={() => {
-                updateQuery('all', 'oldest');
+                updateQuery('all', 'oldest', undefined, false);
               }}
             >
               Reset

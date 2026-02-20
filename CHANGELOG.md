@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.21] - 2026-02-20
+- Added a pinned-only view toggle + dedicated row so curated aging filters remain visible while quick filters focus on top backlog owners
+
 ## [0.1.20] - 2026-02-20
 - Separated pinned filters into their own row with progress bars, keeping favorite aging drilldowns always visible even if they fall out of the top backlog list
 
