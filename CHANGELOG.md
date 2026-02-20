@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.13] - 2026-02-19
+- Task aging alerts now include relative "last update" timestamps for easier triage
+
 ## [0.1.12] - 2026-02-19
 - Memory timelines now show relative ages (e.g., `2d 4h ago`) alongside absolute timestamps for faster context scanning
 

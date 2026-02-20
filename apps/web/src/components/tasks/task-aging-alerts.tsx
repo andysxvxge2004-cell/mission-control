@@ -1,5 +1,5 @@
 import type { Agent, Task } from "@mission-control/db";
-import { formatDateTime } from "@/lib/formatters";
+import { formatDateTime, formatRelativeTime } from "@/lib/formatters";
 
 export type AgingTask = Task & { agent?: Pick<Agent, "id" | "name"> | null };
 
@@ -45,6 +45,9 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
             {task.description ? <p className="mt-2 text-sm text-white/80">{task.description}</p> : null}
             <p className="mt-2 text-[11px] uppercase tracking-wide text-white/50">
               Last update {formatDateTime(task.updatedAt)}
+              <span className="ml-2 text-[10px] uppercase tracking-wide text-white/40">
+                ({formatRelativeTime(task.updatedAt, referenceTime)})
+              </span>
             </p>
           </li>
         ))}
