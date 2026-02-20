@@ -9,6 +9,7 @@ export type TaskWithAgent = Task & { agent?: Pick<Agent, "id" | "name"> | null }
 type TaskListProps = {
   tasks: TaskWithAgent[];
   agents?: Pick<Agent, "id" | "name">[];
+  isFiltered?: boolean;
 };
 
 const STATUS_BADGES: Record<TaskStatus, string> = {
@@ -17,11 +18,11 @@ const STATUS_BADGES: Record<TaskStatus, string> = {
   DONE: "bg-emerald-500/20 text-emerald-100"
 };
 
-export function TaskList({ tasks, agents = [] }: TaskListProps) {
+export function TaskList({ tasks, agents = [], isFiltered = false }: TaskListProps) {
   if (!tasks.length) {
     return (
       <div className="rounded-xl border border-white/10 bg-white/5 p-4 text-sm text-white/70">
-        No tasks logged yet.
+        {isFiltered ? "No tasks match the current filters." : "No tasks logged yet."}
       </div>
     );
   }

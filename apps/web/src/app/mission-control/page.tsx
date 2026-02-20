@@ -1,18 +1,43 @@
 import Link from "next/link";
-import { prisma } from "@mission-control/db";
+import { prisma, type Prisma } from "@mission-control/db";
 import { AgentsList } from "@/components/agents/agents-list";
 import { CreateAgentForm } from "@/components/agents/create-agent-form";
 import { TaskForm } from "@/components/tasks/task-form";
 import { TaskList } from "@/components/tasks/task-list";
+import { TaskFilters } from "@/components/tasks/task-filters";
 import { AuditLogList } from "@/components/audit/audit-log";
 import { ensureCoreAgents } from "@/lib/core-agents";
+import { TASK_STATUSES, type TaskStatus } from "@/lib/constants";
 
 export const dynamic = "force-dynamic";
 
-export default async function MissionControlPage() {
+interface MissionControlPageProps {
+  searchParams?: {
+    agent?: string;
+    status?: string;
+  };
+}
+
+function parseStatus(value?: string): TaskStatus | undefined {
+  if (!value) return undefined;
+  return (TASK_STATUSES.find((status) => status.id === value)?.id as TaskStatus | undefined) ?? undefined;
+}
+
+export default async function MissionControlPage({ searchParams }: MissionControlPageProps) {
   await ensureCoreAgents();
 
-  const [agents, tasks, auditLogs] = await Promise.all([
+  const agentFilter = typeof searchParams?.agent === "string" && searchParams.agent.length > 0 ? searchParams.agent : undefined;
+  const statusFilter = parseStatus(typeof searchParams?.status === "string" ? searchParams.status : undefined);
+
+  const taskWhere: Prisma.TaskWhereInput = {};
+  if (agentFilter) {
+    taskWhere.agentId = agentFilter;
+  }
+  if (statusFilter) {
+    taskWhere.status = statusFilter;
+  }
+
+  const [agents, filteredTasks, auditLogs, todoCount, doingCount, doneCount] = await Promise.all([
     prisma.agent.findMany({
       orderBy: { createdAt: "asc" },
       include: {
@@ -21,6 +46,7 @@ export default async function MissionControlPage() {
       }
     }),
     prisma.task.findMany({
+      where: taskWhere,
       orderBy: { createdAt: "desc" },
       include: { agent: { select: { id: true, name: true } } }
     }),
@@ -30,16 +56,20 @@ export default async function MissionControlPage() {
       include: {
         task: { select: { id: true, title: true } }
       }
-    })
+    }),
+    prisma.task.count({ where: { status: "TODO" } }),
+    prisma.task.count({ where: { status: "DOING" } }),
+    prisma.task.count({ where: { status: "DONE" } })
   ]);
 
-  const statusCounts = tasks.reduce(
-    (acc, task) => {
-      acc[task.status as keyof typeof acc] = (acc[task.status as keyof typeof acc] ?? 0) + 1;
-      return acc;
-    },
-    { TODO: 0, DOING: 0, DONE: 0 } as Record<string, number>
-  );
+  const statusCounts: Record<TaskStatus, number> = {
+    TODO: todoCount,
+    DOING: doingCount,
+    DONE: doneCount
+  };
+
+  const agentsForSelect = agents.map(({ id, name }) => ({ id, name }));
+  const hasActiveFilters = Boolean(agentFilter || statusFilter);
 
   return (
     <main className="min-h-screen bg-slate-950 px-6 py-10">
@@ -63,16 +93,20 @@ export default async function MissionControlPage() {
             </Link>
           </div>
           <div className="mt-6 grid gap-4 md:grid-cols-3">
-            {[
-              { label: "Agents", value: agents.length },
-              { label: "Tasks open", value: statusCounts.TODO + statusCounts.DOING },
-              { label: "Completed", value: statusCounts.DONE }
-            ].map((stat) => (
-              <div key={stat.label} className="rounded-2xl border border-white/10 bg-white/5 p-4">
-                <p className="text-xs uppercase tracking-wide text-white/60">{stat.label}</p>
-                <p className="mt-2 text-3xl font-semibold text-white">{stat.value}</p>
-              </div>
-            ))}
+            {["Agents", "Tasks open", "Completed"].map((label, index) => {
+              const value =
+                index === 0
+                  ? agents.length
+                  : index === 1
+                  ? statusCounts.TODO + statusCounts.DOING
+                  : statusCounts.DONE;
+              return (
+                <div key={label} className="rounded-2xl border border-white/10 bg-white/5 p-4">
+                  <p className="text-xs uppercase tracking-wide text-white/60">{label}</p>
+                  <p className="mt-2 text-3xl font-semibold text-white">{value}</p>
+                </div>
+              );
+            })}
           </div>
         </header>
 
@@ -93,11 +127,17 @@ export default async function MissionControlPage() {
         <section className="grid gap-6 lg:grid-cols-2">
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-white">Log a task</h2>
-            <TaskForm agents={agents.map(({ id, name }) => ({ id, name }))} />
+            <TaskForm agents={agentsForSelect} />
           </div>
           <div className="space-y-4">
             <h2 className="text-xl font-semibold text-white">Execution queue</h2>
-            <TaskList tasks={tasks} agents={agents.map(({ id, name }) => ({ id, name }))} />
+            <TaskFilters
+              agents={agentsForSelect}
+              currentAgentId={agentFilter}
+              currentStatus={statusFilter}
+              basePath="/mission-control"
+            />
+            <TaskList tasks={filteredTasks} agents={agentsForSelect} isFiltered={hasActiveFilters} />
           </div>
         </section>
 
