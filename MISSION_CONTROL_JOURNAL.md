@@ -60,3 +60,5 @@
 - 2026-02-20 04:43 MST | [IMPORTANT] | v0.1.29 | Intelligence now includes an inline form to add custom escalation playbooks; submissions validate impact level + steps and log to Prisma so the library updates instantly. Files: escalation-playbook form + library, actions, intelligence page, CHANGELOG.md. Verify: open /mission-control/intelligence, add a playbook, confirm it appears with filters & copy button.
 
 - 2026-02-20 04:56 MST | [IMPORTANT] | v0.1.30 | Added secure deletion for escalation playbooks via server action + inline buttons so stale runbooks can be cleared without touching the DB. Files: escalation library component, server actions, CHANGELOG.md. Verify: visit Intelligence, delete a playbook, confirm it disappears after refresh.
+
+- 2026-02-20 05:06 MST | [IMPORTANT] | v0.1.31 | Added inline editing for escalation playbooks: cards now open an editor tied to a new Prisma update action so titles, owners, impact, steps, and comms can be tweaked without leaving Mission Control. Files: actions, library component, new editor, CHANGELOG.md. Verify: open Intelligence, hit Edit on a playbook, save, and confirm the card reflects the change immediately.

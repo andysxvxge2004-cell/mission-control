@@ -43,6 +43,10 @@ const playbookSchema = z.object({
   communicationTemplate: z.string().optional()
 });
 
+const playbookUpdateSchema = playbookSchema.extend({
+  playbookId: z.string().min(1)
+});
+
 const playbookIdSchema = z.object({
   playbookId: z.string().min(1)
 });
@@ -225,3 +229,51 @@ export async function deleteEscalationPlaybook(_: unknown, formData: FormData) {
 
   return { success: true };
 }
+export async function updateEscalationPlaybook(_: unknown, formData: FormData) {
+  const result = playbookUpdateSchema.safeParse({
+    playbookId: formData.get("playbookId"),
+    title: formData.get("title"),
+    scenario: formData.get("scenario"),
+    impactLevel: formData.get("impactLevel"),
+    owner: formData.get("owner"),
+    steps: formData.get("steps"),
+    communicationTemplate: formData.get("communicationTemplate") ?? undefined
+  });
+
+  if (!result.success) {
+    return { error: result.error.errors[0]?.message ?? "Invalid input" };
+  }
+
+  const { playbookId, title, scenario, impactLevel, owner, steps, communicationTemplate } = result.data;
+  const parsedSteps = steps
+    .split(/\r?\n/)
+    .map((line) => line.trim())
+    .filter((line) => line.length > 0);
+
+  if (!parsedSteps.length) {
+    return { error: "Add at least one response step" };
+  }
+
+  await prisma.$transaction(async (tx) => {
+    await tx.escalationPlaybookStep.deleteMany({ where: { playbookId } });
+    await tx.escalationPlaybook.update({
+      where: { id: playbookId },
+      data: {
+        title,
+        scenario,
+        impactLevel,
+        owner,
+        communicationTemplate: communicationTemplate?.trim() ? communicationTemplate.trim() : null,
+        steps: {
+          create: parsedSteps.map((instruction, index) => ({ position: index + 1, instruction }))
+        }
+      }
+    });
+  });
+
+  await writeAuditLog("playbook.updated", { playbookId, impactLevel });
+  revalidatePath("/mission-control/intelligence");
+
+  return { success: true };
+}
+

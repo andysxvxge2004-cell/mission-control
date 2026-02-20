@@ -3,6 +3,7 @@
 import { useMemo, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { deleteEscalationPlaybook } from "@/app/actions";
+import { EscalationPlaybookEditor } from "./escalation-playbook-editor";
 import { ESCALATION_IMPACT_LEVELS, type EscalationImpactLevel } from "@/lib/escalation-playbooks";
 
 export type EscalationPlaybookView = {
@@ -56,6 +57,7 @@ export function EscalationPlaybookLibrary({ playbooks }: { playbooks: Escalation
   const [copiedId, setCopiedId] = useState<string | null>(null);
   const [impactFilter, setImpactFilter] = useState<string>("ALL");
   const [searchQuery, setSearchQuery] = useState("");
+  const [editingId, setEditingId] = useState<string | null>(null);
 
   const handleCopy = async (id: string, template?: string | null) => {
     if (!template) return;
@@ -148,11 +150,18 @@ export function EscalationPlaybookLibrary({ playbooks }: { playbooks: Escalation
               <div className="flex items-center gap-2">
                 <span
                   className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${
-                  IMPACT_BADGES[playbook.impactLevel] ?? "bg-white/10 text-white"
-                }`}
-              >
-                {playbook.impactLevel}
+                    IMPACT_BADGES[playbook.impactLevel] ?? "bg-white/10 text-white"
+                  }`}
+                >
+                  {playbook.impactLevel}
                 </span>
+                <button
+                  type="button"
+                  className="rounded-full border border-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/70 transition hover:border-indigo-300 hover:text-white"
+                  onClick={() => setEditingId((current) => (current === playbook.id ? null : playbook.id))}
+                >
+                  {editingId === playbook.id ? "Close editor" : "Edit"}
+                </button>
                 <DeletePlaybookForm playbookId={playbook.id} title={playbook.title} />
               </div>
             </header>
@@ -173,7 +182,11 @@ export function EscalationPlaybookLibrary({ playbooks }: { playbooks: Escalation
               </ol>
             </div>
 
-            {playbook.communicationTemplate ? (
+            {editingId === playbook.id ? (
+              <div className="mt-4">
+                <EscalationPlaybookEditor playbook={playbook} onClose={() => setEditingId(null)} />
+              </div>
+            ) : playbook.communicationTemplate ? (
               <div className="mt-4 space-y-2">
                 <div className="flex items-center justify-between">
                   <p className="text-xs uppercase tracking-wide text-white/40">Comms template</p>
