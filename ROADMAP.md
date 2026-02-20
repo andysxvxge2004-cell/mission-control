@@ -11,7 +11,7 @@ This roadmap tracks the near-term features required to make Mission Control a re
 - [x] Priority labels on tasks (High / Medium / Low) with queue badges so urgent work is obvious (shipped in 0.1.16)
 - [x] Agent search + quick-jump to dossiers directly from the roster (shipped in 0.1.17)
 - [x] Grouped Kanban lanes for agent cards (Idle, Engaged, Overloaded) with capacity hints (shipped in 0.1.18)
-- [ ] Export daily command snapshot (agents, tasks, audits) to markdown for async reporting
+- [x] Export daily command snapshot (agents, tasks, audits) to markdown for async reporting (shipped in 0.1.22)
 
 ## Later
 - [x] Timeline overlays that correlate audit log activity with task changes (shipped in 0.1.7)

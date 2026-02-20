@@ -20,6 +20,7 @@ interface MissionControlPageProps {
     agent?: string;
     status?: string;
     priority?: string;
+    search?: string;
   };
 }
 
@@ -40,7 +41,6 @@ export default async function MissionControlPage({ searchParams }: MissionContro
   const statusFilter = parseStatus(typeof searchParams?.status === "string" ? searchParams.status : undefined);
   const priorityFilter = parsePriority(typeof searchParams?.priority === "string" ? searchParams.priority : undefined);
   const searchQuery = typeof searchParams?.search === "string" ? searchParams.search : "";
-  const priorityFilter = parsePriority(typeof searchParams?.priority === "string" ? searchParams.priority : undefined);
 
   const taskWhere: Prisma.TaskWhereInput = {};
   if (agentFilter) {
@@ -48,9 +48,6 @@ export default async function MissionControlPage({ searchParams }: MissionContro
   }
   if (statusFilter) {
     taskWhere.status = statusFilter;
-  }
-  if (priorityFilter) {
-    taskWhere.priority = priorityFilter;
   }
   if (priorityFilter) {
     taskWhere.priority = priorityFilter;
@@ -114,6 +111,19 @@ export default async function MissionControlPage({ searchParams }: MissionContro
         matches={filteredAgents.map(({ id, name, role }) => ({ id, name, role }))}
         hiddenParams={{ agent: agentFilter ?? undefined, status: statusFilter ?? undefined, priority: priorityFilter ?? undefined }}
       />
+
+      <div className="flex flex-wrap items-center justify-between gap-3 rounded-3xl border border-white/10 bg-white/5 p-4">
+        <div>
+          <p className="text-xs uppercase tracking-wide text-white/60">Reporting</p>
+          <p className="text-sm text-white/70">Export a markdown snapshot of agents, tasks, and recent audits for async handoffs.</p>
+        </div>
+        <a
+          href="/api/mission-control/snapshot"
+          className="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:border-indigo-300 hover:text-indigo-200"
+        >
+          Export snapshot
+        </a>
+      </div>
 
       <section className="grid gap-6 lg:grid-cols-3">
           <div className="lg:col-span-2 space-y-4">

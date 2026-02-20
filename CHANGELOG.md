@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.22] - 2026-02-20
+- Add export endpoint + UI control to generate a markdown “command snapshot” with agents, tasks, and recent audits
+- Include download-friendly headers so the file saves with timestamped filenames for async reporting
+
 ## [0.1.21] - 2026-02-20
 - Added a pinned-only view toggle + dedicated row so curated aging filters remain visible while quick filters focus on top backlog owners
 
