@@ -1,6 +1,6 @@
-import Link from "next/link";
 import { prisma } from "@mission-control/db";
 import { ensureCoreAgents } from "@/lib/core-agents";
+import { AgentFilesGrid } from "@/components/agents/agent-files-grid";
 
 export const dynamic = "force-dynamic";
 
@@ -13,7 +13,11 @@ export default async function MissionControlFilesPage() {
       id: true,
       name: true,
       role: true,
-      memories: { orderBy: { createdAt: "desc" }, take: 1 }
+      memories: {
+        orderBy: { createdAt: "desc" },
+        take: 1,
+        select: { content: true, createdAt: true }
+      }
     }
   });
 
@@ -25,22 +29,16 @@ export default async function MissionControlFilesPage() {
         <p className="text-white/70">Jump into any agent&rsquo;s dossier to review role, soul, memories, and activity.</p>
       </header>
 
-      <div className="grid gap-4 md:grid-cols-2">
-        {agents.map((agent) => (
-          <Link
-            key={agent.id}
-            href={`/mission-control/agents/${agent.id}/files`}
-            className="rounded-2xl border border-white/10 bg-white/5 p-5 transition hover:border-indigo-300/70 hover:bg-white/10"
-          >
-            <p className="text-xs uppercase tracking-wide text-indigo-300">{agent.role}</p>
-            <h2 className="text-xl font-semibold text-white">{agent.name}</h2>
-            <p className="mt-2 text-sm text-white/70">
-              {agent.memories.length ? `Last memory ${new Date(agent.memories[0]!.createdAt).toLocaleDateString()}` : "No memories yet"}
-            </p>
-            <p className="mt-3 text-xs text-white/50">Open dossier ↗</p>
-          </Link>
-        ))}
-      </div>
+      <AgentFilesGrid
+        agents={agents.map((agent) => ({
+          id: agent.id,
+          name: agent.name,
+          role: agent.role,
+          lastMemory: agent.memories[0]
+            ? { content: agent.memories[0]!.content, createdAt: agent.memories[0]!.createdAt.toISOString() }
+            : null
+        }))}
+      />
     </div>
   );
 }

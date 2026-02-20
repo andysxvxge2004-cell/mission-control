@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.31] - 2026-02-20
+- Mission Control Files tab now includes dossier search, role filter chips, and memory previews for faster navigation
+
 ## [0.1.30] - 2026-02-20
 - Escalation playbook cards now expose a delete control wired to a validated server action so stale runbooks disappear instantly
 
