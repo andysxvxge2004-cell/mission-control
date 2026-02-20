@@ -108,6 +108,46 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
     updateQuery(agentFilter, sortOrder, Array.from(next));
   };
 
+  const renderFilterChip = (filter: QuickFilter) => (
+    <button
+      key={filter.value}
+      type="button"
+      className={`flex w-44 flex-col gap-1 rounded-2xl border px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wide ${
+        agentFilter === filter.value
+          ? 'border-amber-300 bg-amber-400/15 text-amber-50'
+          : 'border-white/15 text-white/70 hover:border-amber-200 hover:text-amber-100'
+      }`}
+      onClick={() => updateQuery(filter.value, sortOrder)}
+    >
+      <span className="flex items-center justify-between gap-2">
+        <span className="truncate">{filter.label}</span>
+        <span className="flex items-center gap-1 text-[10px] text-white/60">
+          {filter.pinnable ? (
+            <button
+              type="button"
+              aria-label={filter.pinned ? `Unpin ${filter.label}` : `Pin ${filter.label}`}
+              className={`text-xs ${filter.pinned ? 'text-amber-200' : 'text-white/40'} hover:text-amber-100`}
+              onClick={(event) => {
+                event.preventDefault();
+                event.stopPropagation();
+                handleTogglePin(filter.value);
+              }}
+            >
+              {filter.pinned ? '★' : '☆'}
+            </button>
+          ) : null}
+          <span>{filter.count}</span>
+        </span>
+      </span>
+      <span className="block h-1.5 rounded-full bg-white/10">
+        <span
+          className="block h-full rounded-full bg-amber-300/80"
+          style={{ width: `${Math.min(100, filter.share)}%` }}
+        />
+      </span>
+    </button>
+  );
+
   const quickFilters = useMemo<QuickFilter[]>(() => {
     const unassignedCount = ownershipCounts.find((entry) => entry.id === 'unassigned')?.count ?? 0;
     const pinnedEntries = Array.from(pinnedAgents).map((id) => {
@@ -137,6 +177,9 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
         share: totalStuck ? Math.max(5, Math.round((entry.count / totalStuck) * 100)) : 0
       }));
   }, [ownershipCounts, totalStuck, pinnedAgents, agentOptions]);
+
+  const pinnedFilters = quickFilters.filter((filter) => filter.pinnable && filter.pinned);
+  const defaultFilters = quickFilters.filter((filter) => !filter.pinned);
 
   const filteredTasks = tasks
     .filter((task) => {
@@ -192,46 +235,15 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
       </header>
 
       <div className="space-y-3">
-        <div className="flex flex-wrap gap-2 text-xs">
-          {quickFilters.map((filter) => (
-            <button
-              key={filter.value}
-              type="button"
-              className={`flex w-40 flex-col gap-1 rounded-2xl border px-3 py-2 text-left text-[11px] font-semibold uppercase tracking-wide ${
-                agentFilter === filter.value
-                  ? 'border-amber-300 bg-amber-400/15 text-amber-50'
-                  : 'border-white/15 text-white/70 hover:border-amber-200 hover:text-amber-100'
-              }`}
-              onClick={() => updateQuery(filter.value, sortOrder)}
-            >
-              <span className="flex items-center justify-between gap-2">
-                <span className="truncate">{filter.label}</span>
-                <span className="flex items-center gap-1 text-[10px] text-white/60">
-                  {filter.pinnable ? (
-                    <button
-                      type="button"
-                      aria-label={filter.pinned ? `Unpin ${filter.label}` : `Pin ${filter.label}`}
-                      className={`text-xs ${filter.pinned ? 'text-amber-200' : 'text-white/40'} hover:text-amber-100`}
-                      onClick={(event) => {
-                        event.preventDefault();
-                        event.stopPropagation();
-                        handleTogglePin(filter.value);
-                      }}
-                    >
-                      {filter.pinned ? '★' : '☆'}
-                    </button>
-                  ) : null}
-                  <span>{filter.count}</span>
-                </span>
-              </span>
-              <span className="block h-1.5 rounded-full bg-white/10">
-                <span
-                  className="block h-full rounded-full bg-amber-300/80"
-                  style={{ width: `${Math.min(100, filter.share)}%` }}
-                />
-              </span>
-            </button>
-          ))}
+        {pinnedFilters.length ? (
+          <div className="space-y-1">
+            <p className="text-[10px] uppercase tracking-wide text-amber-100/80">Pinned filters</p>
+            <div className="flex flex-wrap gap-2 text-xs">{pinnedFilters.map((filter) => renderFilterChip(filter))}</div>
+          </div>
+        ) : null}
+        <div className="space-y-1">
+          <p className="text-[10px] uppercase tracking-wide text-white/50">Quick filters</p>
+          <div className="flex flex-wrap gap-2 text-xs">{defaultFilters.map((filter) => renderFilterChip(filter))}</div>
         </div>
         <div className="flex flex-wrap items-center gap-3 text-xs text-white/80">
           <label className="flex flex-col gap-1">

@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.20] - 2026-02-20
+- Separated pinned filters into their own row with progress bars, keeping favorite aging drilldowns always visible even if they fall out of the top backlog list
+
 ## [0.1.19] - 2026-02-20
 - Quick filter chips in Task Aging Alerts can now be pinned/unpinned, persisting via URL parameters for consistent drilldowns
 
