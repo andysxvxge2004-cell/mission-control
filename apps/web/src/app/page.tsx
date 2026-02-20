@@ -6,6 +6,7 @@ import { TaskForm } from "@/components/tasks/task-form";
 import { TaskList } from "@/components/tasks/task-list";
 import { TaskFilters } from "@/components/tasks/task-filters";
 import { AuditLogList } from "@/components/audit/audit-log";
+import { AgentPerformanceRollup } from "@/components/agents/agent-performance-rollup";
 import { ensureCoreAgents } from "@/lib/core-agents";
 import { TASK_STATUSES, type TaskStatus } from "@/lib/constants";
 
@@ -122,6 +123,10 @@ export default async function Home({ searchParams }: HomePageProps) {
             <h2 className="text-xl font-semibold text-white">Create new agent</h2>
             <CreateAgentForm />
           </div>
+        </section>
+
+        <section className="space-y-4">
+          <AgentPerformanceRollup agents={agents} />
         </section>
 
         <section className="grid gap-6 lg:grid-cols-2">
