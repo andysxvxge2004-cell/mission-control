@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.15] - 2026-02-19
+- Added agent + sort controls to the aging alerts panel so ops can filter by owner or focus on oldest stuck work
+
 ## [0.1.14] - 2026-02-19
 - Added rotating agent badge legend and color-coded ownership tags to the aging alerts panel for quicker visual parsing
 

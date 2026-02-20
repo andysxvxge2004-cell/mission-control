@@ -1,3 +1,6 @@
+'use client';
+
+import { useMemo, useState } from "react";
 import type { Agent, Task } from "@mission-control/db";
 import { formatDateTime, formatRelativeTime } from "@/lib/formatters";
 
@@ -20,7 +23,37 @@ function getAgentBadgeClass(agentId: string, index: number) {
   const color = AGENT_COLOR_MAP[index % AGENT_COLOR_MAP.length];
   return `${color} border-white/20`;
 }
+type SortOrder = "oldest" | "newest";
+
 export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) {
+  const [agentFilter, setAgentFilter] = useState<string>("all");
+  const [sortOrder, setSortOrder] = useState<SortOrder>("oldest");
+
+  const agentOptions = useMemo(() => {
+    const map = new Map<string, string>();
+    tasks.forEach((task) => {
+      if (task.agent?.id) {
+        map.set(task.agent.id, task.agent.name);
+      }
+    });
+    return Array.from(map.entries())
+      .map(([id, name]) => ({ id, name }))
+      .sort((a, b) => a.name.localeCompare(b.name));
+  }, [tasks]);
+
+  const filteredTasks = useMemo(() => {
+    const taskCopy = tasks.filter((task) => {
+      if (agentFilter === "all") return true;
+      if (agentFilter === "unassigned") return !task.agent?.id;
+      return task.agent?.id === agentFilter;
+    });
+
+    return taskCopy.sort((a, b) => {
+      const diff = new Date(a.updatedAt).getTime() - new Date(b.updatedAt).getTime();
+      return sortOrder === "oldest" ? diff : -diff;
+    });
+  }, [tasks, agentFilter, sortOrder]);
+
   if (!tasks.length) {
     return (
       <div className="rounded-2xl border border-emerald-400/20 bg-emerald-400/10 px-4 py-3 text-sm text-emerald-200">
@@ -28,6 +61,8 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
       </div>
     );
   }
+
+  const hasFilters = agentFilter !== "all" || sortOrder !== "oldest";
 
   return (
     <div className="space-y-3 rounded-3xl border border-amber-300/30 bg-amber-300/10 p-5">
@@ -60,35 +95,82 @@ export function TaskAgingAlerts({ tasks, referenceTime }: TaskAgingAlertsProps) 
           </details>
         </div>
       </header>
-      <ol className="space-y-3">
-        {tasks.map((task, index) => (
-          <li key={task.id} className="rounded-2xl border border-white/15 bg-black/30 p-4">
-            <div className="flex flex-wrap items-center justify-between gap-3">
-              <div className="flex items-center gap-2">
-                <span
-                  className={`rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wide text-white/80 ${getAgentBadgeClass(
-                    task.agent?.id ?? "unassigned",
-                    index
-                  )}`}
-                >
-                  {task.agent?.name ?? "Unassigned"}
+
+      <div className="flex flex-wrap items-center gap-3 text-xs text-white/80">
+        <label className="flex flex-col gap-1">
+          Agent
+          <select
+            className="rounded-md border border-white/20 bg-black/30 px-3 py-1 text-sm text-white focus:border-amber-300 focus:outline-none"
+            value={agentFilter}
+            onChange={(event) => setAgentFilter(event.target.value)}
+          >
+            <option value="all">All agents</option>
+            <option value="unassigned">Unassigned</option>
+            {agentOptions.map((agent) => (
+              <option key={agent.id} value={agent.id}>
+                {agent.name}
+              </option>
+            ))}
+          </select>
+        </label>
+        <label className="flex flex-col gap-1">
+          Order
+          <select
+            className="rounded-md border border-white/20 bg-black/30 px-3 py-1 text-sm text-white focus:border-amber-300 focus:outline-none"
+            value={sortOrder}
+            onChange={(event) => setSortOrder(event.target.value as SortOrder)}
+          >
+            <option value="oldest">Oldest first</option>
+            <option value="newest">Newest first</option>
+          </select>
+        </label>
+        {hasFilters ? (
+          <button
+            type="button"
+            className="rounded-md border border-amber-300/60 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-amber-100 hover:bg-amber-400/10"
+            onClick={() => {
+              setAgentFilter("all");
+              setSortOrder("oldest");
+            }}
+          >
+            Reset
+          </button>
+        ) : null}
+      </div>
+
+      {filteredTasks.length === 0 ? (
+        <p className="text-sm text-white/70">No stuck tasks match the current filters.</p>
+      ) : (
+        <ol className="space-y-3">
+          {filteredTasks.map((task, index) => (
+            <li key={task.id} className="rounded-2xl border border-white/15 bg-black/30 p-4">
+              <div className="flex flex-wrap items-center justify-between gap-3">
+                <div className="flex items-center gap-2">
+                  <span
+                    className={`rounded-full border px-2 py-0.5 text-[10px] uppercase tracking-wide text-white/80 ${getAgentBadgeClass(
+                      task.agent?.id ?? "unassigned",
+                      index
+                    )}`}
+                  >
+                    {task.agent?.name ?? "Unassigned"}
+                  </span>
+                  <p className="text-base font-semibold text-white">{task.title}</p>
+                </div>
+                <span className="rounded-full bg-amber-500/20 px-3 py-1 text-xs font-semibold text-amber-100">
+                  {ageInHours(task.updatedAt, referenceTime)}h stale
                 </span>
-                <p className="text-base font-semibold text-white">{task.title}</p>
               </div>
-              <span className="rounded-full bg-amber-500/20 px-3 py-1 text-xs font-semibold text-amber-100">
-                {ageInHours(task.updatedAt, referenceTime)}h stale
-              </span>
-            </div>
-            {task.description ? <p className="mt-2 text-sm text-white/80">{task.description}</p> : null}
-            <p className="mt-2 text-[11px] uppercase tracking-wide text-white/50">
-              Last update {formatDateTime(task.updatedAt)}
-              <span className="ml-2 text-[10px] uppercase tracking-wide text-white/40">
-                ({formatRelativeTime(task.updatedAt, referenceTime)})
-              </span>
-            </p>
-          </li>
-        ))}
-      </ol>
+              {task.description ? <p className="mt-2 text-sm text-white/80">{task.description}</p> : null}
+              <p className="mt-2 text-[11px] uppercase tracking-wide text-white/50">
+                Last update {formatDateTime(task.updatedAt)}
+                <span className="ml-2 text-[10px] uppercase tracking-wide text-white/40">
+                  ({formatRelativeTime(task.updatedAt, referenceTime)})
+                </span>
+              </p>
+            </li>
+          ))}
+        </ol>
+      )}
     </div>
   );
 }
