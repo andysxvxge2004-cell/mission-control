@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.9] - 2026-02-19
+- Auto-log `agent.needs_briefing` audit events whenever a new agent is created without memories so gaps get recorded in the timeline
+
 ## [0.1.8] - 2026-02-19
 - Highlight unbriefed agents with dashboard KPIs, warning banners, and roster badges so ops fills memory gaps before dispatching work
 - Add inline "Needs briefing" pills on agent cards plus aggregated counts in Mission Control and the home dashboard

@@ -122,6 +122,7 @@ export async function createAgent(_: unknown, formData: FormData) {
   const agent = await prisma.agent.create({ data: result.data });
 
   await writeAuditLog("agent.created", { agentId: agent.id });
+  await writeAuditLog("agent.needs_briefing", { agentId: agent.id, reason: "Agent created without memories" });
 
   revalidateDash(agent.id);
 
