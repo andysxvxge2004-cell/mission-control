@@ -5,7 +5,7 @@ This roadmap tracks the near-term features required to make Mission Control a re
 ## Near-term backlog
 - [x] Files viewer faux-folder treatment: Role/Soul/Memory/Audit/Tasks folders with search + copy-to-clipboard and Office Space toggle (shipped in 0.1.37).
 - [x] Agent roster upgrade: show per-agent open/done/stuck totals, stuck indicator chip, and quick actions (append memory, assign task) with tightened hierarchy (shipped in 0.1.37).
-- [ ] SLA command board: surface per-priority task SLA clocks (target vs. actual) on the dashboard so leads can intervene before breaches.
+- [x] SLA command board: surface per-priority task SLA clocks (target vs. actual) on the dashboard so leads can intervene before breaches (shipped in 0.1.37).
 - [x] Group execution queue by status lanes with per-lane counts for rapid triage (shipped in 0.1.1)
 - [x] Inline agent reassignment controls inside each lane so ownership and status update together (shipped in 0.1.2)
 - [x] Filter controls for the Execution queue (status + agent) so dispatch can zero in on the next blocker (shipped in 0.1.3)
