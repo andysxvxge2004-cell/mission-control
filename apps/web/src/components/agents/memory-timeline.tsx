@@ -1,5 +1,5 @@
 import type { RecentMemory } from "@mission-control/db";
-import { formatDateTime } from "@/lib/formatters";
+import { formatDateTime, formatRelativeTime } from "@/lib/formatters";
 
 export function MemoryTimeline({ memories }: { memories: RecentMemory[] }) {
   if (!memories.length) {
@@ -13,6 +13,9 @@ export function MemoryTimeline({ memories }: { memories: RecentMemory[] }) {
           <p className="text-sm text-white/80">{memory.content}</p>
           <p className="mt-2 text-[11px] uppercase tracking-wide text-white/50">
             {formatDateTime(memory.createdAt)}
+            <span className="ml-2 text-[10px] uppercase tracking-wide text-white/40">
+              ({formatRelativeTime(memory.createdAt)})
+            </span>
           </p>
         </li>
       ))}

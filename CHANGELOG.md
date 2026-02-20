@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.12] - 2026-02-19
+- Memory timelines now show relative ages (e.g., `2d 4h ago`) alongside absolute timestamps for faster context scanning
+
 ## [0.1.11] - 2026-02-19
 - Memory hygiene banner now shows how long it has been since each agent was briefed and includes stale (3d+) agents alongside never-briefed ones
 - Added relative time formatter utility for concise "Xd Yh ago" strings
