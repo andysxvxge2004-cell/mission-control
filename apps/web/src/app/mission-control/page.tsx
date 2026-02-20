@@ -5,6 +5,7 @@ import { TaskForm } from "@/components/tasks/task-form";
 import { TaskList } from "@/components/tasks/task-list";
 import { TaskFilters } from "@/components/tasks/task-filters";
 import { TaskAgingAlerts } from "@/components/tasks/task-aging-alerts";
+import { SlaCommandBoard } from "@/components/tasks/sla-command-board";
 import { AuditLogPanel } from "@/components/audit/audit-log-panel";
 import { AgentPerformanceRollup } from "@/components/agents/agent-performance-rollup";
 import { AgentsNeedingMemory } from "@/components/agents/agents-needing-memory";
@@ -57,7 +58,7 @@ export default async function MissionControlPage({ searchParams }: MissionContro
   const now = new Date();
   const agingThreshold = getStaleCutoffDate(now.getTime());
 
-  const [agents, filteredTasks, auditLogs, agingTasks, unassignedTasks] = await Promise.all([
+  const [agents, filteredTasks, auditLogs, agingTasks, unassignedTasks, slaTasks] = await Promise.all([
     prisma.agent.findMany({
       orderBy: { createdAt: "asc" },
       include: {
@@ -98,6 +99,12 @@ export default async function MissionControlPage({ searchParams }: MissionContro
         agentId: null
       },
       select: { id: true, priority: true }
+    }),
+    prisma.task.findMany({
+      where: {
+        status: { in: ["TODO", "DOING"] }
+      },
+      select: { id: true, title: true, priority: true, status: true, createdAt: true }
     })
   ]);
 
@@ -204,6 +211,7 @@ export default async function MissionControlPage({ searchParams }: MissionContro
 
         <section className="space-y-4">
           <AgentPerformanceRollup agents={agents} />
+          <SlaCommandBoard tasks={slaTasks} referenceTime={now.toISOString()} />
           <TaskAgingAlerts tasks={agingTasks} referenceTime={now} />
         </section>
 

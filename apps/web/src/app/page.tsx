@@ -6,6 +6,7 @@ import { TaskForm } from "@/components/tasks/task-form";
 import { TaskList } from "@/components/tasks/task-list";
 import { TaskFilters } from "@/components/tasks/task-filters";
 import { TaskAgingAlerts } from "@/components/tasks/task-aging-alerts";
+import { SlaCommandBoard } from "@/components/tasks/sla-command-board";
 import { AuditLogList } from "@/components/audit/audit-log";
 import { AgentPerformanceRollup } from "@/components/agents/agent-performance-rollup";
 import { AgentsSearch } from "@/components/agents/agents-search";
@@ -57,7 +58,7 @@ export default async function Home({ searchParams }: HomePageProps) {
   const now = new Date();
   const agingThreshold = getStaleCutoffDate(now.getTime());
 
-  const [agents, filteredTasks, auditLogs, todoCount, doingCount, doneCount, agingTasks] = await Promise.all([
+  const [agents, filteredTasks, auditLogs, todoCount, doingCount, doneCount, agingTasks, slaTasks] = await Promise.all([
     prisma.agent.findMany({
       orderBy: { createdAt: "asc" },
       include: {
@@ -94,6 +95,12 @@ export default async function Home({ searchParams }: HomePageProps) {
       },
       orderBy: { updatedAt: "asc" },
       include: { agent: { select: { id: true, name: true } } }
+    }),
+    prisma.task.findMany({
+      where: {
+        status: { in: ["TODO", "DOING"] }
+      },
+      select: { id: true, title: true, priority: true, status: true, createdAt: true }
     })
   ]);
 
@@ -207,6 +214,7 @@ export default async function Home({ searchParams }: HomePageProps) {
 
         <section className="space-y-4">
           <AgentPerformanceRollup agents={agents} />
+          <SlaCommandBoard tasks={slaTasks} referenceTime={now.toISOString()} />
           <TaskAgingAlerts tasks={agingTasks} referenceTime={now} />
         </section>
 

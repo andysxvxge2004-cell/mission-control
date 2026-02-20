@@ -3,6 +3,7 @@
 ## [0.1.37] - 2026-02-20
 - Agent roster cards now surface open/done/stuck totals, highlight stuck load, and embed append-memory / assign-task quick actions for each operator.
 - Agent files pivoted to faux folders (Role / Soul / Memories / Audit / Tasks) with search, copy-to-clipboard, and an Office Space theme toggle.
+- SLA Command Board shows per-priority clocks (target vs worst elapsed) plus warning/breach counts so leads can intervene early.
 
 ## [0.1.36] - 2026-02-20
 - Playbook library adds owner filter chips so ops can jump directly to a commander’s runbooks without typing searches.
