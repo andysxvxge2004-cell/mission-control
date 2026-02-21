@@ -1,5 +1,8 @@
 # Changelog
 
+## [0.1.41] - 2026-02-21
+- Added the Executive Snapshot control panel: surfaces total agents, idle >24h, SLA warnings/breaches, oldest open task age, and stale high-priority work in a dedicated top-right block.
+
 ## [0.1.40] - 2026-02-21
 - Polished the Mission Control shell layout: tighter header spacing, a framed KPI strip, and refreshed alerts so the nav + metrics align consistently on every route.
 - SLA Command Board now uses intentional gradient risk colors and a spotlight-styled "Needs Attention" list with consistent chip sizes.

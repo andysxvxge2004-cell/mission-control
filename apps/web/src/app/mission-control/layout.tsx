@@ -4,6 +4,7 @@ import { MissionControlNav } from "@/components/mission-control/mission-nav";
 import { MissionBreadcrumbs } from "@/components/mission-control/mission-breadcrumbs";
 import { MissionKpiStrip } from "@/components/mission-control/mission-kpis";
 import { MissionAlertsStrip } from "@/components/mission-control/mission-alerts";
+import { ExecutiveSnapshotPanel } from "@/components/mission-control/executive-snapshot";
 import { getMissionControlShellData } from "@/lib/mission-control/shell-data";
 
 export const dynamic = "force-dynamic";
@@ -29,12 +30,15 @@ export default async function MissionControlLayout({ children }: { children: Rea
               TradeWise Dev Dashboard
             </Link>
           </div>
-          <div className="mt-6 space-y-5">
-            <MissionControlNav />
-            <MissionBreadcrumbs />
-            <div className="rounded-2xl border border-white/10 bg-black/30 p-4 shadow-inner shadow-black/20">
-              <MissionKpiStrip counts={shellData.counts} />
+          <div className="mt-6 grid gap-5 lg:grid-cols-[1fr_minmax(260px,320px)]">
+            <div className="space-y-5">
+              <MissionControlNav />
+              <MissionBreadcrumbs />
+              <div className="rounded-2xl border border-white/10 bg-black/30 p-4 shadow-inner shadow-black/20">
+                <MissionKpiStrip counts={shellData.counts} />
+              </div>
             </div>
+            <ExecutiveSnapshotPanel snapshot={shellData.snapshot} />
           </div>
         </header>
 
