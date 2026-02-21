@@ -2,6 +2,7 @@ import { prisma } from "@mission-control/db";
 import { AgentPerformanceRollup } from "@/components/agents/agent-performance-rollup";
 import { EscalationPlaybookLibrary, type EscalationPlaybookView } from "@/components/escalation/escalation-playbook-library";
 import { EscalationPlaybookForm } from "@/components/escalation/escalation-playbook-form";
+import { SlaCommandBoard } from "@/components/tasks/sla-command-board";
 import { TaskAgingAlerts } from "@/components/tasks/task-aging-alerts";
 import { ensureEscalationPlaybooks } from "@/lib/escalation-playbooks";
 import { getStaleCutoffDate } from "@/lib/task-metrics";
@@ -21,7 +22,7 @@ export default async function MissionControlIntelligencePage() {
 
   await ensureEscalationPlaybooks();
 
-  const [agents, agingTasks, playbooks] = await Promise.all([
+  const [agents, agingTasks, playbooks, slaTasks] = await Promise.all([
     prisma.agent.findMany({
       orderBy: { createdAt: "asc" },
       include: {
@@ -36,6 +37,12 @@ export default async function MissionControlIntelligencePage() {
     }),
     prisma.escalationPlaybook.findMany({
       include: { steps: { orderBy: { position: "asc" } } }
+    }),
+    prisma.task.findMany({
+      where: {
+        status: { in: ["TODO", "DOING"] }
+      },
+      select: { id: true, title: true, priority: true, status: true, createdAt: true, updatedAt: true }
     })
   ]);
 
@@ -63,6 +70,8 @@ export default async function MissionControlIntelligencePage() {
         <h1 className="mt-2 text-3xl font-semibold text-white">Intelligence</h1>
         <p className="text-white/70">High-level signals about throughput, bottlenecks, operator load, and escalation paths.</p>
       </header>
+
+      <SlaCommandBoard tasks={slaTasks} referenceTime={now.toISOString()} />
 
       <AgentPerformanceRollup agents={agents} />
 
