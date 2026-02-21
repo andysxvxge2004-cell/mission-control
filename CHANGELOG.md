@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.39] - 2026-02-21
+- Mission Control Files view now renders faux Office Space folders for Role, Soul, Memories, Tasks, and Audit logs with per-folder copy buttons, search, and role filters.
+- Cards highlight recent activity timestamps and keep everything client-side using the existing agent/task/audit data—no backend changes required.
+
 ## [0.1.38] - 2026-02-21
 - Agent roster cards now feature a three-metric workload scoreboard (TODO / DOING / DONE), inline quick chips, and an idle badge that triggers after 48h with no task/memory activity.
 - Cards also surface "last touch" timestamps plus a clear stuck-task warning ribbon powered entirely from existing task timestamps.
