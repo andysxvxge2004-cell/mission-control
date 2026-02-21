@@ -6,8 +6,8 @@ export interface SlaTaskSummary {
   title: string;
   priority: TaskPriority;
   status: string;
-  createdAt: string;
-  updatedAt: string;
+  createdAt: Date | string;
+  updatedAt: Date | string | null;
 }
 
 interface SlaCommandBoardProps {

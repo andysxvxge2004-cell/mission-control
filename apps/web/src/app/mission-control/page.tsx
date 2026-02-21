@@ -104,7 +104,7 @@ export default async function MissionControlPage({ searchParams }: MissionContro
       where: {
         status: { in: ["TODO", "DOING"] }
       },
-      select: { id: true, title: true, priority: true, status: true, createdAt: true }
+      select: { id: true, title: true, priority: true, status: true, createdAt: true, updatedAt: true }
     })
   ]);
 
