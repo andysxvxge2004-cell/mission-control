@@ -86,19 +86,22 @@ export function AgentFolderViewer({ agentName, folders }: AgentFolderViewerProps
         {filteredFolders.map((folder) => (
           <article
             key={folder.id}
-            className={`flex h-full flex-col gap-3 rounded-2xl border border-white/10 p-5 ${
+            className={`flex h-full flex-col gap-3 rounded-2xl border border-white/10 p-5 transition ${
               officeMode ? "bg-[#2b2018]/80" : "bg-black/30"
             }`}
           >
             <div className="flex items-start justify-between gap-3">
               <div>
-                <p className="text-[11px] uppercase tracking-[0.3em] text-white/50">Folder</p>
                 <h3 className="text-xl font-semibold text-white">{folder.title}</h3>
                 <p className="text-sm text-white/60">{folder.summary || "No summary"}</p>
               </div>
               <button
                 type="button"
-                className="rounded-full border border-white/20 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/80 hover:border-indigo-300"
+                className={`rounded-full border px-3 py-1 text-xs font-semibold uppercase tracking-wide transition ${
+                  copiedId === folder.id
+                    ? "border-emerald-300 bg-emerald-400/20 text-emerald-50"
+                    : "border-white/20 text-white/80 hover:border-indigo-300"
+                }`}
                 onClick={() => handleCopy(folder)}
               >
                 {copiedId === folder.id ? "Copied" : "Copy"}

@@ -30,6 +30,8 @@ const STATUS_LABELS: Record<TaskStatus, string> = {
 
 const STATUS_ORDER: TaskStatus[] = ["TODO", "DOING", "DONE"];
 
+const CHIP_BASE = "rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em]";
+
 const CAPACITY_LANES = [
   {
     id: "IDLE",
@@ -135,17 +137,13 @@ function AgentCard({ agent, hrefPrefix, reference }: AgentCardProps) {
               {agent.name}
             </Link>
             {needsBriefing ? (
-              <span className="rounded-full bg-rose-500/20 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-rose-100">
-                Needs briefing
-              </span>
+              <span className={`${CHIP_BASE} bg-rose-500/20 text-rose-100`}>Needs briefing</span>
             ) : null}
             {stuckCount > 0 ? (
-              <span className="rounded-full bg-rose-500/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-rose-100">
-                Stuck {stuckCount}
-              </span>
+              <span className={`${CHIP_BASE} bg-rose-500/15 text-rose-100`}>Stuck {stuckCount}</span>
             ) : null}
             {isIdle ? (
-              <span className="rounded-full bg-amber-400/15 px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wide text-amber-100">
+              <span className={`${CHIP_BASE} bg-amber-400/20 text-amber-100`}>
                 Idle {Math.floor(idleForHours / 24)}d
               </span>
             ) : null}

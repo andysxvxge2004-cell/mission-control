@@ -17,50 +17,50 @@ export function MissionAlertsStrip({ alerts, referenceTime }: MissionAlertsStrip
   }
 
   return (
-    <div className="rounded-3xl border border-white/10 bg-white/5 p-5 text-sm text-white/80">
+    <div className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900/80 to-black/70 p-5 text-sm text-white/80 shadow-lg shadow-black/40">
       <div className="grid gap-6 md:grid-cols-2">
         {alerts.needsBriefing.length > 0 ? (
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-amber-200">Needs briefing</p>
+          <section>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-amber-200">Needs briefing</p>
             <ul className="mt-3 space-y-2">
               {alerts.needsBriefing.map((agent) => (
-                <li key={agent.id} className="flex flex-wrap items-center gap-2">
+                <li key={agent.id} className="flex flex-wrap items-center gap-2 rounded-2xl border border-white/5 bg-white/5 px-3 py-2">
                   <span className="font-medium text-white">{agent.name}</span>
                   <span className="text-xs text-white/60">
                     {agent.lastMemoryAt ? `Last briefing ${formatRelativeTime(agent.lastMemoryAt, referenceTime)}` : "No memories yet"}
                   </span>
                   <Link
                     href={`/mission-control/agents/${agent.id}`}
-                    className="rounded-full border border-white/20 px-3 py-1 text-xs text-white/80 hover:border-white"
+                    className="rounded-full border border-white/20 px-3 py-1 text-xs text-white/80 transition hover:border-amber-200 hover:text-amber-100"
                   >
                     Brief agent ↗
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </section>
         ) : null}
 
         {alerts.stuckTasks.length > 0 ? (
-          <div>
-            <p className="text-xs font-semibold uppercase tracking-wide text-amber-200">Stuck tasks</p>
+          <section>
+            <p className="text-xs font-semibold uppercase tracking-[0.3em] text-rose-200">Stuck tasks</p>
             <ul className="mt-3 space-y-2">
               {alerts.stuckTasks.map((task) => (
-                <li key={task.id} className="flex flex-col rounded-xl border border-amber-100/20 bg-amber-100/5 p-3">
+                <li key={task.id} className="rounded-2xl border border-rose-300/30 bg-rose-500/10 p-3">
                   <span className="font-semibold text-white">{task.title}</span>
                   <span className="text-xs text-white/70">
                     Last update {formatRelativeTime(task.updatedAt, referenceTime)} ({formatDateTime(task.updatedAt)})
                   </span>
                   <Link
                     href={`/mission-control/tasks?task=${task.id}`}
-                    className="mt-2 text-xs text-amber-200 hover:text-amber-100"
+                    className="mt-2 inline-flex items-center text-xs font-semibold text-rose-200 transition hover:text-rose-50"
                   >
                     Inspect task ↗
                   </Link>
                 </li>
               ))}
             </ul>
-          </div>
+          </section>
         ) : null}
       </div>
     </div>

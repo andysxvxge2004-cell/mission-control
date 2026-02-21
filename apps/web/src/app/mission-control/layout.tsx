@@ -13,9 +13,9 @@ export default async function MissionControlLayout({ children }: { children: Rea
   const shellData = await getMissionControlShellData(referenceTime);
 
   return (
-    <div className="min-h-screen bg-slate-950 px-6 py-8 text-white">
-      <div className="mx-auto flex max-w-6xl flex-col gap-6">
-        <header className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 to-black p-6 shadow-2xl">
+    <div className="min-h-screen bg-slate-950 px-4 py-6 text-white sm:px-6">
+      <div className="mx-auto flex w-full max-w-6xl flex-col gap-6">
+        <header className="rounded-3xl border border-white/10 bg-gradient-to-br from-slate-900 to-black p-6 shadow-2xl shadow-black/40">
           <div className="flex flex-wrap items-center justify-between gap-4">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-indigo-300">Mission Control</p>
@@ -24,21 +24,24 @@ export default async function MissionControlLayout({ children }: { children: Rea
             </div>
             <Link
               href="/"
-              className="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white hover:border-indigo-300"
+              className="rounded-full border border-white/20 px-4 py-2 text-sm font-semibold text-white transition hover:border-indigo-300 hover:text-indigo-100"
             >
               TradeWise Dev Dashboard
             </Link>
           </div>
-          <div className="mt-4 space-y-4">
+          <div className="mt-6 space-y-5">
             <MissionControlNav />
             <MissionBreadcrumbs />
-            <MissionKpiStrip counts={shellData.counts} />
+            <div className="rounded-2xl border border-white/10 bg-black/30 p-4 shadow-inner shadow-black/20">
+              <MissionKpiStrip counts={shellData.counts} />
+            </div>
           </div>
         </header>
 
-        <MissionAlertsStrip alerts={shellData.alerts} referenceTime={referenceTime} />
-
-        <main>{children}</main>
+        <main className="space-y-6">
+          <MissionAlertsStrip alerts={shellData.alerts} referenceTime={referenceTime} />
+          <div className="space-y-6">{children}</div>
+        </main>
       </div>
     </div>
   );

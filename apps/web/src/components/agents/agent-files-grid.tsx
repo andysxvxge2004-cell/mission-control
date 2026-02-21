@@ -217,13 +217,16 @@ export function AgentFilesGrid({ agents }: AgentFilesGridProps) {
                     >
                       <div className="flex items-start justify-between gap-2">
                         <div>
-                          <p className="text-[10px] uppercase tracking-[0.3em] text-white/40">Folder</p>
                           <h3 className="text-lg font-semibold text-white">{folder.title}</h3>
                           <p className="text-sm text-white/70">{folder.summary}</p>
                         </div>
                         <button
                           type="button"
-                          className="rounded-full border border-white/20 px-3 py-1 text-[10px] font-semibold uppercase tracking-wide text-white/80 hover:border-indigo-300"
+                          className={`rounded-full border px-3 py-1 text-[10px] font-semibold uppercase tracking-wide transition ${
+                            copiedKey === `${agent.id}-${folder.id}`
+                              ? "border-emerald-300 bg-emerald-400/20 text-emerald-50"
+                              : "border-white/20 text-white/80 hover:border-indigo-300"
+                          }`}
                           onClick={() => handleCopy(folder.copyText, `${agent.id}-${folder.id}`)}
                         >
                           {copiedKey === `${agent.id}-${folder.id}` ? "Copied" : "Copy"}

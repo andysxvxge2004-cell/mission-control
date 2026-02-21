@@ -1,5 +1,10 @@
 # Changelog
 
+## [0.1.40] - 2026-02-21
+- Polished the Mission Control shell layout: tighter header spacing, a framed KPI strip, and refreshed alerts so the nav + metrics align consistently on every route.
+- SLA Command Board now uses intentional gradient risk colors and a spotlight-styled "Needs Attention" list with consistent chip sizes.
+- Files + folder experiences picked up hover feedback, smooth scrolling, and clearer copy-to-clipboard signals without any backend changes.
+
 ## [0.1.39] - 2026-02-21
 - Mission Control Files view now renders faux Office Space folders for Role, Soul, Memories, Tasks, and Audit logs with per-folder copy buttons, search, and role filters.
 - Cards highlight recent activity timestamps and keep everything client-side using the existing agent/task/audit data—no backend changes required.

@@ -66,24 +66,25 @@ const RISK_ORDER: Record<SlaState, number> = {
   WARNING: 1,
   OK: 2
 };
+const CHIP_BASE = "rounded-full px-3 py-1 text-[10px] font-semibold uppercase tracking-[0.3em]";
 const RISK_META: Record<SlaState, { label: string; badge: string; bar: string; dot: string }> = {
   BREACH: {
     label: "Breach",
-    badge: "bg-rose-500/20 text-rose-100",
-    bar: "bg-rose-500/80",
-    dot: "bg-rose-400"
+    badge: `${CHIP_BASE} border border-rose-400/60 bg-gradient-to-r from-rose-600/30 to-rose-500/20 text-rose-50`,
+    bar: "bg-gradient-to-r from-rose-600 via-rose-500 to-rose-400",
+    dot: "bg-rose-300 shadow-[0_0_12px_rgba(244,63,94,0.45)]"
   },
   WARNING: {
     label: "Warning",
-    badge: "bg-amber-400/20 text-amber-100",
-    bar: "bg-amber-400/80",
-    dot: "bg-amber-300"
+    badge: `${CHIP_BASE} border border-amber-300/60 bg-gradient-to-r from-amber-400/30 to-amber-300/20 text-amber-50`,
+    bar: "bg-gradient-to-r from-amber-400 via-amber-300 to-amber-200",
+    dot: "bg-amber-200 shadow-[0_0_12px_rgba(251,191,36,0.45)]"
   },
   OK: {
     label: "On track",
-    badge: "bg-emerald-400/20 text-emerald-100",
-    bar: "bg-emerald-400/80",
-    dot: "bg-emerald-300"
+    badge: `${CHIP_BASE} border border-emerald-300/60 bg-gradient-to-r from-emerald-400/25 to-emerald-300/15 text-emerald-50`,
+    bar: "bg-gradient-to-r from-emerald-400 via-emerald-300 to-emerald-200",
+    dot: "bg-emerald-200 shadow-[0_0_12px_rgba(16,185,129,0.35)]"
   }
 };
 
@@ -102,7 +103,7 @@ export function SlaCommandBoard({ tasks, referenceTime }: SlaCommandBoardProps) 
           <h2 className="text-2xl font-semibold">SLA intelligence</h2>
           <p className="text-sm text-white/70">Per-priority clocks, breach risk bands, and tasks that need intervention.</p>
         </div>
-        <span className="rounded-full border border-white/15 px-3 py-1 text-xs font-semibold uppercase tracking-wide text-white/80">
+        <span className={`${CHIP_BASE} border border-white/15 bg-white/10 text-white/80`}>
           {tasks.length} open clock{tasks.length === 1 ? "" : "s"}
         </span>
       </header>
@@ -145,9 +146,7 @@ export function SlaCommandBoard({ tasks, referenceTime }: SlaCommandBoardProps) 
                     <p className="text-2xl font-semibold text-white">{section.worstElapsed.toFixed(1)}h</p>
                     <p className="text-xs text-white/60">SLA clock (target {section.thresholdHours}h)</p>
                   </div>
-                  <span className={`rounded-full px-3 py-1 text-xs font-semibold uppercase tracking-wide ${section.badgeClass}`}>
-                    {section.statusLabel}
-                  </span>
+                  <span className={section.badgeClass}>{section.statusLabel}</span>
                 </div>
                 <div className="mt-3 h-2 rounded-full bg-white/10">
                   <div className={`h-full rounded-full ${section.progressClass}`} style={{ width: `${section.progressPercent}%` }} />
@@ -188,13 +187,13 @@ export function SlaCommandBoard({ tasks, referenceTime }: SlaCommandBoardProps) 
           </div>
         </div>
 
-        <aside className="space-y-3 rounded-2xl border border-white/10 bg-black/35 p-4">
+        <aside className="space-y-4 rounded-3xl border border-white/10 bg-gradient-to-b from-slate-900/80 to-slate-950/80 p-5 shadow-xl shadow-black/40">
           <div className="flex items-center justify-between">
             <div>
               <p className="text-xs uppercase tracking-[0.3em] text-white/60">Needs attention</p>
               <p className="text-lg font-semibold text-white">Highest-risk tasks</p>
             </div>
-            <span className="rounded-full bg-white/10 px-3 py-1 text-xs text-white/70">
+            <span className={`${CHIP_BASE} border border-white/15 bg-white/10 text-white/70`}>
               {attentionList.length ? `${attentionList.length} flagged` : "All clear"}
             </span>
           </div>
@@ -204,12 +203,13 @@ export function SlaCommandBoard({ tasks, referenceTime }: SlaCommandBoardProps) 
           ) : (
             <ol className="space-y-3">
               {attentionList.map((entry) => (
-                <li key={entry.id} className="rounded-2xl border border-white/10 bg-black/40 p-3">
+                <li
+                  key={entry.id}
+                  className="group rounded-2xl border border-white/10 bg-gradient-to-br from-slate-900/70 via-slate-950/40 to-black/70 p-4 shadow-inner shadow-black/40 transition hover:border-indigo-300/60"
+                >
                   <div className="flex items-center justify-between gap-2">
                     <p className="text-sm font-semibold text-white">{entry.title}</p>
-                    <span className={`rounded-full px-2 py-0.5 text-[10px] uppercase tracking-wide ${RISK_META[entry.sla.state].badge}`}>
-                      {RISK_META[entry.sla.state].label}
-                    </span>
+                    <span className={RISK_META[entry.sla.state].badge}>{RISK_META[entry.sla.state].label}</span>
                   </div>
                   <p className="mt-1 text-[11px] uppercase tracking-wide text-white/50">
                     {PRIORITY_LABEL_MAP[entry.priority]} · {entry.status === "TODO" ? "Todo" : entry.status === "DOING" ? "In progress" : entry.status}
