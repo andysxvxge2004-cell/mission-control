@@ -1,5 +1,9 @@
 # Changelog
 
+## [0.1.38] - 2026-02-21
+- Agent roster cards now feature a three-metric workload scoreboard (TODO / DOING / DONE), inline quick chips, and an idle badge that triggers after 48h with no task/memory activity.
+- Cards also surface "last touch" timestamps plus a clear stuck-task warning ribbon powered entirely from existing task timestamps.
+
 ## [0.1.37] - 2026-02-20
 - Agent roster cards now surface open/done/stuck totals, highlight stuck load, and embed append-memory / assign-task quick actions for each operator.
 - Agent files pivoted to faux folders (Role / Soul / Memories / Audit / Tasks) with search, copy-to-clipboard, and an Office Space theme toggle.
