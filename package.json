@@ -14,11 +14,14 @@
     "react-dom": "19.2.3"
   },
   "devDependencies": {
+    "@prisma/client": "^5.22.0",
     "@types/node": "^20",
     "@types/react": "^19",
     "@types/react-dom": "^19",
     "eslint": "^9",
     "eslint-config-next": "16.1.6",
+    "prisma": "^5.22.0",
     "typescript": "^5"
-  }
+  },
+  "packageManager": "pnpm@9.12.0"
 }
