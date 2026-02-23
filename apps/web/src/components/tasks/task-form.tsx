@@ -3,9 +3,13 @@ import type { Agent } from "@mission-control/db";
 import { TASK_PRIORITIES, TASK_STATUSES } from "@/lib/constants";
 import { SubmitButton } from "../submit-button";
 
+const createTaskAction = async (formData: FormData) => {
+  await createTask(null, formData);
+};
+
 export function TaskForm({ agents }: { agents: Pick<Agent, "id" | "name">[] }) {
   return (
-    <form action={createTask} className="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
+    <form action={createTaskAction} className="space-y-3 rounded-xl border border-white/10 bg-white/5 p-4">
       <div>
         <label className="text-xs font-semibold uppercase tracking-wide text-white/60">Title</label>
         <input
